@@ -2,7 +2,7 @@
 
   (general
     (links 90)
-    (no_connects 1)
+    (no_connects 0)
     (area 45.924999 44.924999 160.075001 104.075001)
     (thickness 1.6)
     (drawings 4)
@@ -1431,10 +1431,10 @@
       (net 4 FAN_OUT))
   )
 
-  (gr_line (start 46 104) (end 46 45) (layer Edge.Cuts) (width 0.15))
+  (gr_line (start 46 104) (end 46 44) (layer Edge.Cuts) (width 0.15))
   (gr_line (start 160 104) (end 46 104) (layer Edge.Cuts) (width 0.15))
-  (gr_line (start 160 45) (end 160 104) (layer Edge.Cuts) (width 0.15))
-  (gr_line (start 46 45) (end 160 45) (layer Edge.Cuts) (width 0.15))
+  (gr_line (start 160 44) (end 160 104) (layer Edge.Cuts) (width 0.15))
+  (gr_line (start 46 44) (end 160 44) (layer Edge.Cuts) (width 0.15))
 
   (segment (start 129.9 76.886812) (end 129.9 76.224264) (width 0.5) (layer F.Cu) (net 1))
   (segment (start 129.9 76.224264) (end 129.9 75.8) (width 0.5) (layer F.Cu) (net 1))
