@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source /home/achew22/Projects/hardware/hvac-v2/hvac-v2.sch)
-    (date "Fri 20 Jul 2018 10:44:52 PM MDT")
+    (date "Fri 20 Jul 2018 11:15:49 PM MDT")
     (tool "Eeschema 4.0.2+dfsg1-stable")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -602,7 +602,7 @@
       (node (ref U1) (pin 20)))
     (net (code 30) (name "Net-(U1-Pad7)")
       (node (ref U1) (pin 7)))
-    (net (code 31) (name KNOB)
+    (net (code 31) (name SPEED)
       (node (ref RV1) (pin 2))
       (node (ref U1) (pin 6)))
     (net (code 32) (name VBATT_DIV)

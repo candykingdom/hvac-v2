@@ -500,7 +500,7 @@ $EndComp
 Text GLabel 2250 1450 2    60   Input ~ 0
 MODE
 Text GLabel 2250 1550 2    60   Input ~ 0
-KNOB
+SPEED
 $Comp
 L POT-RESCUE-hvac-v2 RV1
 U 1 1 5B5181A4
@@ -535,7 +535,7 @@ F 3 "" H 5350 5300 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Text GLabel 5500 5150 2    60   Input ~ 0
-KNOB
+SPEED
 NoConn ~ 2250 1050
 NoConn ~ 2250 1150
 NoConn ~ 2250 1650
