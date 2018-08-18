@@ -31,6 +31,11 @@ DallasTemperature extTemp(&extOneWire);
 Bounce napButton;
 Bounce auxButton;
 
+// Fan speeds (in percent)
+const int speeds[] = {100, 80, 60};
+const int kNumSpeeds = 3;
+int currentSpeedIndex = 0;
+
 void setup() {
   // put your setup code here, to run once:
   pinMode(2, OUTPUT);
@@ -50,6 +55,9 @@ void setup() {
   extTemp.begin();
   napButton.attach(kNapButtonPin, INPUT_PULLUP);
   auxButton.attach(kAuxButtonPin, INPUT_PULLUP);
+
+  // Set initial fan speed to full
+  analogWrite(kFanPwmPin, 255);
 }
 
 
@@ -78,6 +86,16 @@ void loop() {
     return;
   }
 
+  // Fan speed control
+  if (auxButton.update() && auxButton.rose()) {
+    currentSpeedIndex = (currentSpeedIndex + 1) % kNumSpeeds;
+    int speed = speeds[currentSpeedIndex] * 255 / 100;
+    analogWrite(kFanPwmPin, speed);
+    Serial.print("Fan speed: ");
+    Serial.println(speed);
+  }
+
+  // Temp loop
   float intF = intTemp.getTempFByIndex(0);
   float extF = extTemp.getTempFByIndex(0);
   const bool waterPresent = !digitalRead(kWaterPin);
