@@ -89,7 +89,7 @@ void loop() {
 
   // Fan speed control
   if (auxButton.update() && auxButton.fell()) {
-    leds[0] = CRGB(0, 0, 64);
+    leds[0] = CRGB(0, 0, 255);
     FastLED.show();
     currentSpeedIndex = (currentSpeedIndex + 1) % kNumSpeeds;
     int speed = speeds[currentSpeedIndex] * 255 / 100;
