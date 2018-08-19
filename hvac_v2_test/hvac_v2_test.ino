@@ -41,6 +41,7 @@ void setup() {
   pinMode(2, OUTPUT);
   FastLED.addLeds<SK6812, 2, GRB>(leds, kNumLeds);
   FastLED.setBrightness(16);
+  FastLED.showColor(CRGB(0, 0, 0));
 
   Serial.begin(9600);
   pinMode(kSpeedPin, INPUT);
@@ -96,6 +97,8 @@ void loop() {
   }
 
   // Temp loop
+  intTemp.requestTemperatures();
+  extTemp.requestTemperatures();
   float intF = intTemp.getTempFByIndex(0);
   float extF = extTemp.getTempFByIndex(0);
   const bool waterPresent = !digitalRead(kWaterPin);
@@ -113,6 +116,10 @@ void loop() {
   }
   
   if (tempLoopRunAt < millis()) {
+    Serial.print(intF);
+    Serial.print("F, ext: ");
+    Serial.print(extF);
+    Serial.println("F");
 
     if (intF > extF && extF < kSwampCoolerTempThresh) {
       // Inside is hotter and it's cold outside, so just run the fan. We can still do this even if there's no water.
@@ -135,8 +142,6 @@ void loop() {
   }
 
   delay(1);
-
-
 
 
   /*intTemp.requestTemperatures();
@@ -183,3 +188,11 @@ void loop() {
  
   delay(1000);*/
 }
+/*void printAddress(DeviceAddress deviceAddress)
+{
+  for (uint8_t i = 0; i < 8; i++)
+  {
+    if (deviceAddress[i] < 16) Serial.print("0");
+    Serial.print(deviceAddress[i], HEX);
+  }
+}*/
