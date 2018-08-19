@@ -111,7 +111,7 @@ void loop() {
 
     digitalWrite(kPumpPin, LOW);
   } else {
-    leds[0] = CRGB(0, 0, 0);
+    leds[0] = CRGB(0, 0, 16);
     FastLED.show();
   }
   
