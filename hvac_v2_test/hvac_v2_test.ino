@@ -43,7 +43,7 @@ void setup() {
   FastLED.setBrightness(16);
   FastLED.showColor(CRGB(0, 0, 0));
 
-  Serial.begin(9600);
+  Serial.begin(112500);
   pinMode(kSpeedPin, INPUT);
   pinMode(kIntTempPin, INPUT_PULLUP);
   pinMode(kExtTempPin, INPUT_PULLUP);
@@ -88,22 +88,19 @@ void loop() {
   }
 
   // Fan speed control
-  if (auxButton.update() && auxButton.rose()) {
+  if (auxButton.update() && auxButton.fell()) {
+    leds[0] = CRGB(0, 0, 64);
+    FastLED.show();
     currentSpeedIndex = (currentSpeedIndex + 1) % kNumSpeeds;
     int speed = speeds[currentSpeedIndex] * 255 / 100;
     analogWrite(kFanPwmPin, speed);
     Serial.print("Fan speed: ");
     Serial.println(speed);
+    delay(5);
   }
 
-  // Temp loop
-  intTemp.requestTemperatures();
-  extTemp.requestTemperatures();
-  float intF = intTemp.getTempFByIndex(0);
-  float extF = extTemp.getTempFByIndex(0);
-  const bool waterPresent = !digitalRead(kWaterPin);
-
   // Don't do this check inside the temp loop, because we want to kill the pump as soon as there's no water.
+  const bool waterPresent = !digitalRead(kWaterPin);
   if (!waterPresent) {
     // Red warning light
     leds[0] = CRGB(255, 0, 0);
@@ -116,6 +113,12 @@ void loop() {
   }
   
   if (tempLoopRunAt < millis()) {
+    // Temp loop
+    intTemp.requestTemperatures();
+    extTemp.requestTemperatures();
+    const float intF = intTemp.getTempFByIndex(0);
+    const float extF = extTemp.getTempFByIndex(0);
+    
     Serial.print(intF);
     Serial.print("F, ext: ");
     Serial.print(extF);
