@@ -581,7 +581,7 @@ U 1 1 5B4ED249
 P 6850 9900
 F 0 "J1" H 6850 9750 60  0000 C CNN
 F 1 "Anderson_two_redblack" H 6850 10050 60  0000 C CNN
-F 2 "homebrew:Anderson_1337G3_right_angle_bottom_two" H 6800 9750 60  0001 C CNN
+F 2 "homebrew:Anderson_1336G1_right_angle_bottom_two" H 6800 9750 60  0001 C CNN
 F 3 "" H 6800 9750 60  0001 C CNN
 	1    6850 9900
 	1    0    0    -1  
