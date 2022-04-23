@@ -3307,4 +3307,15 @@ Text Label 1700 4150 2    50   ~ 0
 SW_2
 Text Label 1700 4250 2    50   ~ 0
 SW_3
+$Comp
+L hvac-v2-rescue:HOLE H6
+U 1 1 6265A8C4
+P 14750 800
+F 0 "H6" H 14750 670 60  0000 C CNN
+F 1 "SLOT" H 14750 920 60  0000 C CNN
+F 2 "homebrew:SLOT_W2mm_H8mm" H 14750 800 60  0001 C CNN
+F 3 "" H 14750 800 60  0001 C CNN
+	1    14750 800 
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
