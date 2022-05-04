@@ -29,10 +29,26 @@ Menu::outputsList out(outputs, 1);
 Menu::navNode nav_cursors[kMaxDepth];
 Menu::navRoot nav(mainMenu, nav_cursors, kMaxDepth - 1, in, out);
 
+result idle(menuOut &o, idleEvent e) {
+  switch (e) {
+    case idleStart:
+      break;
+    case idling:
+      o.println("idle");
+      break;
+    case idleEnd:
+      nav.reset();
+      break;
+  }
+  return proceed;
+}
+
 void setup() {
   Serial.begin(9600);
   while (!Serial)
     ;
+  nav.timeOut=10;
+  nav.idleTask=idle;
 }
 
 void loop() {
