@@ -2,6 +2,17 @@
 #include <menuIO/serialIn.h>
 #include <menuIO/serialOut.h>
 
+#include "temps.h"
+
+// Pin definitions
+const int kLedPin = 13;
+
+// Tuning constants
+const uint16_t kUpdateTempMs = 1000;
+
+// State
+uint32_t update_temp_at = 0;
+
 const constexpr int kMaxDepth = 3;
 
 int test = 0;
@@ -30,11 +41,15 @@ Menu::navNode nav_cursors[kMaxDepth];
 Menu::navRoot nav(mainMenu, nav_cursors, kMaxDepth - 1, in, out);
 
 result idle(menuOut &o, idleEvent e) {
+  Serial.println(e);
   switch (e) {
     case idleStart:
+    o.println("idleStart");
       break;
     case idling:
-      o.println("idle");
+      o.print("Out: ");
+      o.println(temps::GetOutside(), 3);
+      nav.idleChanged = true;
       break;
     case idleEnd:
       nav.reset();
@@ -44,14 +59,28 @@ result idle(menuOut &o, idleEvent e) {
 }
 
 void setup() {
+  pinMode(kLedPin, OUTPUT);
+  digitalWrite(kLedPin, HIGH);
+
+  temps::Init();
+
   Serial.begin(9600);
   while (!Serial)
     ;
-  nav.timeOut=10;
-  nav.idleTask=idle;
+  nav.timeOut = 10;
+  nav.idleTask = idle;
+
+  digitalWrite(kLedPin, LOW);
 }
 
 void loop() {
+  if (millis() > update_temp_at) {
+    Serial.println("run");
+    out.idle()
+    nav.idleChanged = !nav.idleChanged;
+    update_temp_at = millis() + kUpdateTempMs;
+  }
+
   nav.poll();
-  delay(10);
+  delay(100);
 }
