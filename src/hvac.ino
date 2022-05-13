@@ -3,6 +3,7 @@
 #include <menuIO/serialOut.h>
 
 #include "temps.h"
+#include "fake-temps.h"
 
 // Pin definitions
 const int kLedPin = 13;
@@ -40,6 +41,8 @@ Menu::outputsList out(outputs, 1);
 Menu::navNode nav_cursors[kMaxDepth];
 Menu::navRoot nav(mainMenu, nav_cursors, kMaxDepth - 1, in, out);
 
+FakeTemps temps;
+
 bool in_idle = false;
 
 result idle(menuOut &o, idleEvent e) {
@@ -64,7 +67,7 @@ void setup() {
   pinMode(kLedPin, OUTPUT);
   digitalWrite(kLedPin, HIGH);
 
-  temps::Init();
+  temps.Init();
 
   Serial.begin(9600);
   while (!Serial)
@@ -79,12 +82,12 @@ void loop() {
   if (in_idle && millis() > update_temp_at) {
     // TODO: output to screen
     Serial.print("Out ");
-    Serial.print(temps::GetOutside(), /* digits= */ 0);
+    Serial.print(temps.GetOutside(), /* digits= */ 0);
     Serial.print("   In ");
-    Serial.println(temps::GetInside(), /* digits= */ 0);
+    Serial.println(temps.GetInside(), /* digits= */ 0);
     update_temp_at = millis() + kUpdateTempMs;
   }
 
   nav.poll();
-  delay(100);
+  delay(10);
 }
