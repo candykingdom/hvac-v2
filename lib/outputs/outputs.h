@@ -6,8 +6,22 @@
 class Outputs {
  public:
   virtual bool Init();
-  virtual void SetFan(uint8_t value);
-  virtual void SetPump(uint8_t value);
+
+  virtual void SetFan(uint8_t value) {
+    fan_ = value;
+  }
+
+  uint8_t GetFan() {
+    return fan_;
+  }
+
+  virtual void SetPump(uint8_t value) {
+    pump_ = value;
+  }
+
+  protected:
+  uint8_t fan_;
+  uint8_t pump_;
 };
 
 #endif  // OUTPUTS_H_

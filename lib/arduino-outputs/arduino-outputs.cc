@@ -9,6 +9,9 @@ bool ArduinoOutputs::Init() {
   return true;
 }
 
-void ArduinoOutputs::SetFan(uint8_t value) { analogWrite(kFanPin, value); }
+void ArduinoOutputs::SetFan(uint8_t value) {
+  Outputs::SetFan(value);
+  analogWrite(kFanPin, value);
+}
 
 void ArduinoOutputs::SetPump(uint8_t value) { analogWrite(kPumpPin, value); }

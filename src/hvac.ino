@@ -22,11 +22,15 @@ const constexpr int kMaxDepth = 3;
 
 int8_t set_temp = 60;
 uint8_t fan_speed = 255;
+int8_t swamp_threshold = 70;
+
+result FanChanged();
 
 // clang-format off
 MENU(mainMenu,"Main menu",doNothing,noEvent,wrapStyle
-  ,FIELD(set_temp,"Temp","F",30,100,10,1,doNothing,noEvent,wrapStyle)
-  ,FIELD(fan_speed, "Fan", "", 0, 255, 25, 1, doNothing, noEvent, wrapStyle)
+  ,FIELD(set_temp, "Temp", "F", 30, 100, 10, 1, doNothing, noEvent, wrapStyle)
+  ,FIELD(fan_speed, "Fan", "", 0, 255, 25, 1, FanChanged, updateEvent, wrapStyle)
+  ,FIELD(swamp_threshold, "Swamp Thresh", "F", 30, 100, 10, 1, doNothing, noEvent, wrapStyle)
   ,EXIT("...")
 );
 // clang-format on
@@ -70,6 +74,14 @@ result idle(menuOut &o, idleEvent e) {
   return proceed;
 }
 
+result FanChanged() {
+  Serial.println("Fan changed");
+  if (outputs.GetFan() > 0) {
+    outputs.SetFan(fan_speed);
+  }
+  return proceed;
+}
+
 // In case of non-recoverable error, fast-blink the LED
 void FatalError() {
   bool on = true;
@@ -98,8 +110,13 @@ void setup() {
     ;
   nav.timeOut = 10;
   nav.idleTask = idle;
+  nav.useUpdateEvent = true;
 
   digitalWrite(kLedPin, LOW);
+
+  inputs.inside = 80;
+  inputs.outside = 60;
+  // inputs.water_switch = false;
 }
 
 void loop() {
@@ -111,6 +128,47 @@ void loop() {
     Serial.println(inputs.GetInside(), /* digits= */ 0);
     update_temp_at = millis() + kUpdateTempMs;
   }
+
+  bool missing_water = false;
+  float inside = inputs.GetInside();
+  if (inside > set_temp) {
+    float outside = inputs.GetOutside();
+    if (outside > inside) {
+      if (outside > swamp_threshold) {
+        if (inputs.GetWaterSwitch()) {
+          outputs.SetPump(255);
+          outputs.SetFan(fan_speed);
+        } else {
+          // Swamp is requested, but not available.
+          outputs.SetFan(0);
+          outputs.SetPump(0);
+          missing_water = true;
+        }
+      } else {
+        // outside < swamp_threshold
+        outputs.SetFan(0);
+        outputs.SetPump(0);
+      }
+    } else {
+      // outside < inside
+      outputs.SetFan(fan_speed);
+      if (outside > swamp_threshold) {
+        if (inputs.GetWaterSwitch()) {
+          outputs.SetPump(255);
+        } else {
+          // Swamp is requested, but not available.
+          missing_water = true;
+          outputs.SetPump(0);
+        }
+      }
+    }
+  } else {
+    // inside < set_temp
+    outputs.SetFan(0);
+    outputs.SetPump(0);
+  }
+
+  digitalWrite(kLedPin, missing_water);
 
   nav.poll();
   delay(10);
