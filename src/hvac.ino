@@ -40,19 +40,21 @@ Menu::outputsList out(outputs, 1);
 Menu::navNode nav_cursors[kMaxDepth];
 Menu::navRoot nav(mainMenu, nav_cursors, kMaxDepth - 1, in, out);
 
+bool in_idle = false;
+
 result idle(menuOut &o, idleEvent e) {
-  Serial.println(e);
   switch (e) {
     case idleStart:
-    o.println("idleStart");
+      o.clear();
+      in_idle = true;
+      // TODO: remove?
+      Serial.println();
       break;
     case idling:
-      o.print("Out: ");
-      o.println(temps::GetOutside(), 3);
-      nav.idleChanged = true;
       break;
     case idleEnd:
       nav.reset();
+      in_idle = false;
       break;
   }
   return proceed;
@@ -74,10 +76,12 @@ void setup() {
 }
 
 void loop() {
-  if (millis() > update_temp_at) {
-    Serial.println("run");
-    out.idle()
-    nav.idleChanged = !nav.idleChanged;
+  if (in_idle && millis() > update_temp_at) {
+    // TODO: output to screen
+    Serial.print("Out ");
+    Serial.print(temps::GetOutside(), /* digits= */ 0);
+    Serial.print("   In ");
+    Serial.println(temps::GetInside(), /* digits= */ 0);
     update_temp_at = millis() + kUpdateTempMs;
   }
 
