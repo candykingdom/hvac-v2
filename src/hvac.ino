@@ -4,6 +4,10 @@
 
 #include "temps.h"
 #include "fake-temps.h"
+#include "arduino-temps.h"
+#include "outputs.h"
+#include "arduino-outputs.h"
+#include "fake-outputs.h"
 
 // Pin definitions
 const int kLedPin = 13;
@@ -34,14 +38,15 @@ Menu::panelsList pList(panels, nodes, 1);
 Menu::idx_t serialTops[kMaxDepth];
 Menu::serialOut outSerial(Serial, serialTops);
 
-Menu::menuOut *outputs[] MEMMODE = {&outSerial};
-Menu::outputsList out(outputs, 1);
+Menu::menuOut *menu_outputs[] MEMMODE = {&outSerial};
+Menu::outputsList out(menu_outputs, 1);
 
 // aux objects to control each level of navigation
 Menu::navNode nav_cursors[kMaxDepth];
 Menu::navRoot nav(mainMenu, nav_cursors, kMaxDepth - 1, in, out);
 
 FakeTemps temps;
+FakeOutputs outputs;
 
 bool in_idle = false;
 
@@ -67,7 +72,12 @@ void setup() {
   pinMode(kLedPin, OUTPUT);
   digitalWrite(kLedPin, HIGH);
 
-  temps.Init();
+  if (!temps.Init()) {
+    Serial.println("temps.Init() failed");
+  }
+  if (!outputs.Init()) {
+    Serial.println("outputs.Init() failed");
+  }
 
   Serial.begin(9600);
   while (!Serial)
