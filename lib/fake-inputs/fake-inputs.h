@@ -11,8 +11,11 @@ class FakeInputs : public Inputs {
 
   float GetInside() override { return inside; }
 
+  bool GetWaterSwitch() override { return water_switch; }
+
   float outside = 0;
   float inside = 0;
+  bool water_switch = true;
 };
 
 #endif  // FAKE_INPUTS_H_

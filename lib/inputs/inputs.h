@@ -6,6 +6,7 @@ class Inputs {
   virtual bool Init();
   virtual float GetOutside();
   virtual float GetInside();
+  virtual bool GetWaterSwitch();
 };
 
 #endif  // INPUTS_H_

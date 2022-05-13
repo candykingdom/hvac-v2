@@ -2,12 +2,12 @@
 #include <menuIO/serialIn.h>
 #include <menuIO/serialOut.h>
 
-#include "inputs.h"
-#include "fake-inputs.h"
 #include "arduino-inputs.h"
-#include "outputs.h"
 #include "arduino-outputs.h"
+#include "fake-inputs.h"
 #include "fake-outputs.h"
+#include "inputs.h"
+#include "outputs.h"
 
 // Pin definitions
 const int kLedPin = 13;
@@ -20,11 +20,13 @@ uint32_t update_temp_at = 0;
 
 const constexpr int kMaxDepth = 3;
 
-int test = 0;
+int8_t set_temp = 60;
+uint8_t fan_speed = 255;
 
 // clang-format off
 MENU(mainMenu,"Main menu",doNothing,noEvent,wrapStyle
-  ,FIELD(test,"Test","%",0,100,10,1,doNothing,noEvent,wrapStyle)
+  ,FIELD(set_temp,"Temp","F",30,100,10,1,doNothing,noEvent,wrapStyle)
+  ,FIELD(fan_speed, "Fan", "", 0, 255, 25, 1, doNothing, noEvent, wrapStyle)
   ,EXIT("...")
 );
 // clang-format on
@@ -68,15 +70,27 @@ result idle(menuOut &o, idleEvent e) {
   return proceed;
 }
 
+// In case of non-recoverable error, fast-blink the LED
+void FatalError() {
+  bool on = true;
+  while (true) {
+    digitalWrite(kLedPin, on);
+    on = !on;
+    delay(200);
+  }
+}
+
 void setup() {
   pinMode(kLedPin, OUTPUT);
   digitalWrite(kLedPin, HIGH);
 
   if (!inputs.Init()) {
     Serial.println("inputs.Init() failed");
+    FatalError();
   }
   if (!outputs.Init()) {
     Serial.println("outputs.Init() failed");
+    FatalError();
   }
 
   Serial.begin(9600);
