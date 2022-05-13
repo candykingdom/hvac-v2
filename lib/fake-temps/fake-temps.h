@@ -5,7 +5,7 @@
 
 class FakeTemps : public Temps {
  public:
-  bool Init() override {}
+  bool Init() override { return true; }
 
   float GetOutside() override { return outside; }
 
