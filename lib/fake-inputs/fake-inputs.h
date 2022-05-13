@@ -1,9 +1,9 @@
-#ifndef FAKE_TEMPS_H_
-#define FAKE_TEMPS_H_
+#ifndef FAKE_INPUTS_H_
+#define FAKE_INPUTS_H_
 
-#include "temps.h"
+#include "inputs.h"
 
-class FakeTemps : public Temps {
+class FakeInputs : public Inputs {
  public:
   bool Init() override { return true; }
 
@@ -15,4 +15,4 @@ class FakeTemps : public Temps {
   float inside = 0;
 };
 
-#endif  // FAKE_TEMPS_H_
+#endif  // FAKE_INPUTS_H_

@@ -2,9 +2,9 @@
 #include <menuIO/serialIn.h>
 #include <menuIO/serialOut.h>
 
-#include "temps.h"
-#include "fake-temps.h"
-#include "arduino-temps.h"
+#include "inputs.h"
+#include "fake-inputs.h"
+#include "arduino-inputs.h"
 #include "outputs.h"
 #include "arduino-outputs.h"
 #include "fake-outputs.h"
@@ -45,7 +45,7 @@ Menu::outputsList out(menu_outputs, 1);
 Menu::navNode nav_cursors[kMaxDepth];
 Menu::navRoot nav(mainMenu, nav_cursors, kMaxDepth - 1, in, out);
 
-FakeTemps temps;
+FakeInputs inputs;
 FakeOutputs outputs;
 
 bool in_idle = false;
@@ -72,8 +72,8 @@ void setup() {
   pinMode(kLedPin, OUTPUT);
   digitalWrite(kLedPin, HIGH);
 
-  if (!temps.Init()) {
-    Serial.println("temps.Init() failed");
+  if (!inputs.Init()) {
+    Serial.println("inputs.Init() failed");
   }
   if (!outputs.Init()) {
     Serial.println("outputs.Init() failed");
@@ -92,9 +92,9 @@ void loop() {
   if (in_idle && millis() > update_temp_at) {
     // TODO: output to screen
     Serial.print("Out ");
-    Serial.print(temps.GetOutside(), /* digits= */ 0);
+    Serial.print(inputs.GetOutside(), /* digits= */ 0);
     Serial.print("   In ");
-    Serial.println(temps.GetInside(), /* digits= */ 0);
+    Serial.println(inputs.GetInside(), /* digits= */ 0);
     update_temp_at = millis() + kUpdateTempMs;
   }
 

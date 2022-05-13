@@ -1,11 +1,11 @@
-#ifndef TEMPS_H_
-#define TEMPS_H_
+#ifndef INPUTS_H_
+#define INPUTS_H_
 
-class Temps {
+class Inputs {
  public:
   virtual bool Init();
   virtual float GetOutside();
   virtual float GetInside();
 };
 
-#endif  // TEMPS_H_
+#endif  // INPUTS_H_
