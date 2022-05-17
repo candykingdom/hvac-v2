@@ -10,7 +10,7 @@
 #include "outputs.h"
 
 // Pin definitions
-const int kLedPin = 13;
+const int kLedPin = PA11;
 
 // Tuning constants
 const uint16_t kUpdateTempMs = 1000;

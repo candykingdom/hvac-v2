@@ -1,6 +1,7 @@
 #ifndef ARDUINO_OUTPUTS_H_
 #define ARDUINO_OUTPUTS_H_
 
+#include "Arduino.h"
 #include "outputs.h"
 
 class ArduinoOutputs : public Outputs {
