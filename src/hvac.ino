@@ -11,6 +11,7 @@
 
 // Pin definitions
 const int kLedPin = PA11;
+const int kBuzzerPin = PB1;
 
 // Tuning constants
 const uint16_t kUpdateTempMs = 1000;
@@ -95,6 +96,8 @@ void FatalError() {
 void setup() {
   pinMode(kLedPin, OUTPUT);
   digitalWrite(kLedPin, HIGH);
+
+  pinMode(kBuzzerPin, OUTPUT);
 
   if (!inputs.Init()) {
     Serial.println("inputs.Init() failed");
