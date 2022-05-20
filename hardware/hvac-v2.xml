@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <export version="E">
   <design>
-    <source>/home/adam/hardware/hvac-v2/hvac-v2.kicad_sch</source>
-    <date>Sat 23 Apr 2022 09:42:58 PM MDT</date>
-    <tool>Eeschema 6.0.4-6f826c9f35~116~ubuntu20.04.1</tool>
+    <source>/home/adam/hardware/hvac-v2/hardware/hvac-v2.kicad_sch</source>
+    <date>Thu 19 May 2022 11:05:11 PM MDT</date>
+    <tool>Eeschema 6.0.5-a6ca702e91~116~ubuntu20.04.1</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
         <title/>
@@ -533,7 +533,7 @@
       <tstamps>00000000-0000-0000-0000-000062e6b91e</tstamps>
     </comp>
     <comp ref="C39">
-      <value>1000uF</value>
+      <value>470uF</value>
       <footprint>Capacitor_THT:CP_Radial_D10.0mm_P5.00mm</footprint>
       <fields>
         <field name="MPN">25PK1000MEFC10X16</field>
@@ -635,6 +635,32 @@
       <property name="Sheetfile" value="hvac-v2.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>700e2735-67e5-4cec-a4ef-dd4a40c6a839</tstamps>
+    </comp>
+    <comp ref="C47">
+      <value>4.7uF</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C19666</field>
+      </fields>
+      <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
+      <property name="LCSC" value="C19666"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="hvac-v2.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>b01b2ee0-1d70-49bd-b0df-07dfbcb7a989</tstamps>
+    </comp>
+    <comp ref="C48">
+      <value>4.7uF</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <fields>
+        <field name="LCSC">C19666</field>
+      </fields>
+      <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
+      <property name="LCSC" value="C19666"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="hvac-v2.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>502f5771-f756-463c-a2a5-7236d01bdc09</tstamps>
     </comp>
     <comp ref="D1">
       <value>TVS_5V</value>
@@ -842,17 +868,17 @@
       <tstamps>00000000-0000-0000-0000-0000631dc79a</tstamps>
     </comp>
     <comp ref="D16">
-      <value>D_Schottky</value>
-      <footprint>Diode_THT:D_DO-201AD_P12.70mm_Horizontal</footprint>
+      <value>TVS_12V</value>
+      <footprint>Diode_SMD:D_SMB_Handsoldering</footprint>
       <fields>
-        <field name="MPN">SB10150TA</field>
+        <field name="MPN">SMBJ16CA</field>
       </fields>
-      <libsource lib="Device" part="D_Schottky" description="Schottky diode"/>
-      <property name="MPN" value="SB10150TA"/>
+      <libsource lib="Device" part="D_TVS" description="Bidirectional transient-voltage-suppression diode"/>
+      <property name="MPN" value="SMBJ16CA"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="hvac-v2.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
-      <tstamps>00000000-0000-0000-0000-000062e2df1b</tstamps>
+      <tstamps>d0f67923-4071-4b21-84f2-f57e75870066</tstamps>
     </comp>
     <comp ref="D17">
       <value>D_Schottky</value>
@@ -963,19 +989,6 @@
       <property name="Sheetfile" value="hvac-v2.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>00000000-0000-0000-0000-00006305efb3</tstamps>
-    </comp>
-    <comp ref="D25">
-      <value>D_Schottky</value>
-      <footprint>Diode_THT:D_DO-201AD_P12.70mm_Horizontal</footprint>
-      <fields>
-        <field name="MPN">SB10150TA</field>
-      </fields>
-      <libsource lib="Device" part="D_Schottky" description="Schottky diode"/>
-      <property name="MPN" value="SB10150TA"/>
-      <property name="Sheetname" value=""/>
-      <property name="Sheetfile" value="hvac-v2.kicad_sch"/>
-      <sheetpath names="/" tstamps="/"/>
-      <tstamps>29c6ca38-377b-4030-acab-d702ef3d3884</tstamps>
     </comp>
     <comp ref="D26">
       <value>TVS_5V</value>
@@ -1780,18 +1793,18 @@
       <tstamps>00000000-0000-0000-0000-0000626d9e16</tstamps>
     </comp>
     <comp ref="U4">
-      <value>AMS1117-3.3</value>
-      <footprint>Package_TO_SOT_SMD:SOT-223-3_TabPin2</footprint>
-      <datasheet>http://www.advanced-monolithic.com/pdf/ds1117.pdf</datasheet>
+      <value>AP7381-XXV</value>
+      <footprint>Package_TO_SOT_THT:TO-92L_Inline_Wide</footprint>
+      <datasheet>https://www.diodes.com/assets/Datasheets/AP7381.pdf</datasheet>
       <fields>
-        <field name="LCSC">C6186</field>
+        <field name="MPN">AP7381-33V</field>
       </fields>
-      <libsource lib="Regulator_Linear" part="AMS1117-3.3" description="1A Low Dropout regulator, positive, 3.3V fixed output, SOT-223"/>
-      <property name="LCSC" value="C6186"/>
+      <libsource lib="Homebrew" part="AP7381-XXV" description="150mA Low Dropout Voltage Regulator, Fixed Output, TO-92"/>
+      <property name="MPN" value="AP7381-33V"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="hvac-v2.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
-      <tstamps>00000000-0000-0000-0000-000062deab79</tstamps>
+      <tstamps>6e15d25c-3b54-4d32-84bd-64bec4fe811e</tstamps>
     </comp>
     <comp ref="U5">
       <value>DS18B20</value>
@@ -1808,18 +1821,18 @@
       <tstamps>00000000-0000-0000-0000-000062816d3b</tstamps>
     </comp>
     <comp ref="U6">
-      <value>AMS1117-5.0</value>
-      <footprint>Package_TO_SOT_SMD:SOT-223-3_TabPin2</footprint>
-      <datasheet>http://www.advanced-monolithic.com/pdf/ds1117.pdf</datasheet>
+      <value>AP7381-XXV</value>
+      <footprint>Package_TO_SOT_THT:TO-92L_Inline_Wide</footprint>
+      <datasheet>https://www.diodes.com/assets/Datasheets/AP7381.pdf</datasheet>
       <fields>
-        <field name="LCSC">C6187</field>
+        <field name="MPN">AP7381-50V</field>
       </fields>
-      <libsource lib="Regulator_Linear" part="AMS1117-5.0" description="1A Low Dropout regulator, positive, 5.0V fixed output, SOT-223"/>
-      <property name="LCSC" value="C6187"/>
+      <libsource lib="Homebrew" part="AP7381-XXV" description="150mA Low Dropout Voltage Regulator, Fixed Output, TO-92"/>
+      <property name="MPN" value="AP7381-50V"/>
       <property name="Sheetname" value=""/>
       <property name="Sheetfile" value="hvac-v2.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
-      <tstamps>ea233fee-5423-4a26-8404-8f713267d9da</tstamps>
+      <tstamps>a5598ad1-e9ac-43d0-9693-972a902a2b97</tstamps>
     </comp>
   </components>
   <libparts>
@@ -2013,6 +2026,24 @@
         <pin num="S2" name="S2" type="passive"/>
       </pins>
     </libpart>
+    <libpart lib="Homebrew" part="AP7381-XXV">
+      <description>150mA Low Dropout Voltage Regulator, Fixed Output, TO-92</description>
+      <docs>https://www.diodes.com/assets/Datasheets/AP7381.pdf</docs>
+      <footprints>
+        <fp>SOT?23*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">AP7381-XXV</field>
+        <field name="Footprint">Package_TO_SOT_THT:TO-92L_Inline_Wide</field>
+        <field name="Datasheet">https://www.diodes.com/assets/Datasheets/AP7381.pdf</field>
+      </fields>
+      <pins>
+        <pin num="1" name="VO" type="power_out"/>
+        <pin num="2" name="GND" type="power_in"/>
+        <pin num="3" name="VI" type="power_in"/>
+      </pins>
+    </libpart>
     <libpart lib="Homebrew" part="Anderson_two_redblack_sink">
       <fields>
         <field name="Reference">J</field>
@@ -2128,42 +2159,6 @@
         <pin num="48" name="VDD" type="power_in"/>
       </pins>
     </libpart>
-    <libpart lib="Regulator_Linear" part="AMS1117-3.3">
-      <description>1A Low Dropout regulator, positive, 3.3V fixed output, SOT-223</description>
-      <docs>http://www.advanced-monolithic.com/pdf/ds1117.pdf</docs>
-      <footprints>
-        <fp>SOT?223*TabPin2*</fp>
-      </footprints>
-      <fields>
-        <field name="Reference">U</field>
-        <field name="Value">AMS1117-3.3</field>
-        <field name="Footprint">Package_TO_SOT_SMD:SOT-223-3_TabPin2</field>
-        <field name="Datasheet">http://www.advanced-monolithic.com/pdf/ds1117.pdf</field>
-      </fields>
-      <pins>
-        <pin num="1" name="GND" type="power_in"/>
-        <pin num="2" name="VO" type="power_out"/>
-        <pin num="3" name="VI" type="power_in"/>
-      </pins>
-    </libpart>
-    <libpart lib="Regulator_Linear" part="AMS1117-5.0">
-      <description>1A Low Dropout regulator, positive, 5.0V fixed output, SOT-223</description>
-      <docs>http://www.advanced-monolithic.com/pdf/ds1117.pdf</docs>
-      <footprints>
-        <fp>SOT?223*TabPin2*</fp>
-      </footprints>
-      <fields>
-        <field name="Reference">U</field>
-        <field name="Value">AMS1117-5.0</field>
-        <field name="Footprint">Package_TO_SOT_SMD:SOT-223-3_TabPin2</field>
-        <field name="Datasheet">http://www.advanced-monolithic.com/pdf/ds1117.pdf</field>
-      </fields>
-      <pins>
-        <pin num="1" name="GND" type="power_in"/>
-        <pin num="2" name="VO" type="power_out"/>
-        <pin num="3" name="VI" type="power_in"/>
-      </pins>
-    </libpart>
     <libpart lib="Sensor_Temperature" part="DS18B20">
       <description>Programmable Resolution 1-Wire Digital Thermometer TO-92</description>
       <docs>http://datasheets.maximintegrated.com/en/ds/DS18B20.pdf</docs>
@@ -2251,14 +2246,14 @@
     <library logical="Device">
       <uri>/usr/share/kicad/symbols//Device.kicad_sym</uri>
     </library>
+    <library logical="Homebrew">
+      <uri>/home/adam/hardware/kicad/homebrew/homebrew.kicad_sym</uri>
+    </library>
     <library logical="Jumper">
       <uri>/usr/share/kicad/symbols//Jumper.kicad_sym</uri>
     </library>
     <library logical="MCU_ST_STM32F0">
       <uri>/usr/share/kicad/symbols//MCU_ST_STM32F0.kicad_sym</uri>
-    </library>
-    <library logical="Regulator_Linear">
-      <uri>/usr/share/kicad/symbols//Regulator_Linear.kicad_sym</uri>
     </library>
     <library logical="Sensor_Temperature">
       <uri>/usr/share/kicad/symbols//Sensor_Temperature.kicad_sym</uri>
@@ -2270,7 +2265,7 @@
       <uri>/usr/share/kicad/symbols//Transistor_FET.kicad_sym</uri>
     </library>
     <library logical="hvac-v2-rescue">
-      <uri>/home/adam/hardware/hvac-v2/hvac-v2-rescue.lib</uri>
+      <uri>/home/adam/hardware/hvac-v2/hardware/hvac-v2-rescue.lib</uri>
     </library>
   </libraries>
   <nets>
@@ -2278,11 +2273,10 @@
       <node ref="C37" pin="1" pintype="passive"/>
       <node ref="C45" pin="1" pintype="passive"/>
       <node ref="C46" pin="1" pintype="passive"/>
-      <node ref="D25" pin="2" pinfunction="A" pintype="passive"/>
       <node ref="D26" pin="1" pinfunction="A1" pintype="passive"/>
       <node ref="J2" pin="3" pinfunction="Pin_3" pintype="passive"/>
       <node ref="J6" pin="3" pinfunction="Pin_3" pintype="passive"/>
-      <node ref="U6" pin="2" pinfunction="VO" pintype="power_out"/>
+      <node ref="U6" pin="1" pinfunction="VO" pintype="power_out"/>
     </net>
     <net code="2" name="+BATT">
       <node ref="C10" pin="1" pintype="passive"/>
@@ -2294,10 +2288,11 @@
       <node ref="C33" pin="1" pintype="passive"/>
       <node ref="C34" pin="1" pintype="passive"/>
       <node ref="C44" pin="2" pintype="passive"/>
-      <node ref="D16" pin="1" pinfunction="K" pintype="passive"/>
+      <node ref="C47" pin="2" pintype="passive"/>
+      <node ref="C48" pin="2" pintype="passive"/>
+      <node ref="D16" pin="1" pinfunction="A1" pintype="passive"/>
       <node ref="D17" pin="1" pinfunction="K" pintype="passive"/>
       <node ref="D18" pin="1" pinfunction="K" pintype="passive"/>
-      <node ref="D25" pin="1" pinfunction="K" pintype="passive"/>
       <node ref="D4" pin="1" pinfunction="A1" pintype="passive"/>
       <node ref="F1" pin="2" pinfunction="OUT" pintype="power_out"/>
       <node ref="J7" pin="1" pintype="power_in"/>
@@ -2442,11 +2437,11 @@
     </net>
     <net code="26" name="/SCL">
       <node ref="J2" pin="1" pinfunction="Pin_1" pintype="passive"/>
-      <node ref="U1" pin="6" pinfunction="PF1" pintype="input"/>
+      <node ref="U1" pin="35" pinfunction="PF6" pintype="bidirectional"/>
     </net>
     <net code="27" name="/SDA">
       <node ref="J2" pin="2" pinfunction="Pin_2" pintype="passive"/>
-      <node ref="U1" pin="5" pinfunction="PF0" pintype="input"/>
+      <node ref="U1" pin="36" pinfunction="PF7" pintype="bidirectional"/>
     </net>
     <net code="28" name="/SWCLK">
       <node ref="J14" pin="1" pinfunction="Pin_1" pintype="passive"/>
@@ -2540,6 +2535,8 @@
       <node ref="C44" pin="1" pintype="passive"/>
       <node ref="C45" pin="2" pintype="passive"/>
       <node ref="C46" pin="2" pintype="passive"/>
+      <node ref="C47" pin="1" pintype="passive"/>
+      <node ref="C48" pin="1" pintype="passive"/>
       <node ref="C5" pin="2" pintype="passive"/>
       <node ref="C6" pin="2" pintype="passive"/>
       <node ref="C7" pin="1" pintype="passive"/>
@@ -2552,6 +2549,7 @@
       <node ref="D13" pin="2" pinfunction="A2" pintype="passive"/>
       <node ref="D14" pin="2" pinfunction="A2" pintype="passive"/>
       <node ref="D15" pin="2" pinfunction="A2" pintype="passive"/>
+      <node ref="D16" pin="2" pinfunction="A2" pintype="passive"/>
       <node ref="D19" pin="2" pinfunction="A2" pintype="passive"/>
       <node ref="D2" pin="2" pinfunction="A2" pintype="passive"/>
       <node ref="D20" pin="2" pinfunction="A2" pintype="passive"/>
@@ -2598,9 +2596,9 @@
       <node ref="U1" pin="8" pinfunction="VSSA" pintype="power_in"/>
       <node ref="U2" pin="1" pinfunction="GND" pintype="power_in"/>
       <node ref="U3" pin="1" pinfunction="GND" pintype="power_in"/>
-      <node ref="U4" pin="1" pinfunction="GND" pintype="power_in"/>
+      <node ref="U4" pin="2" pinfunction="GND" pintype="power_in"/>
       <node ref="U5" pin="1" pinfunction="GND" pintype="power_in"/>
-      <node ref="U6" pin="1" pinfunction="GND" pintype="power_in"/>
+      <node ref="U6" pin="2" pinfunction="GND" pintype="power_in"/>
     </net>
     <net code="40" name="Net-(BZ1-Pad1)">
       <node ref="BZ1" pin="1" pinfunction="-" pintype="passive"/>
@@ -2714,7 +2712,6 @@
       <node ref="C5" pin="1" pintype="passive"/>
       <node ref="C8" pin="1" pintype="passive"/>
       <node ref="C9" pin="1" pintype="passive"/>
-      <node ref="D16" pin="2" pinfunction="A" pintype="passive"/>
       <node ref="D21" pin="1" pinfunction="A1" pintype="passive"/>
       <node ref="J11" pin="3" pinfunction="Pin_3" pintype="passive"/>
       <node ref="J12" pin="3" pinfunction="Pin_3" pintype="passive"/>
@@ -2731,7 +2728,7 @@
       <node ref="U1" pin="24" pinfunction="VDD" pintype="power_in"/>
       <node ref="U1" pin="48" pinfunction="VDD" pintype="power_in"/>
       <node ref="U1" pin="9" pinfunction="VDDA" pintype="power_in"/>
-      <node ref="U4" pin="2" pinfunction="VO" pintype="power_out"/>
+      <node ref="U4" pin="1" pinfunction="VO" pintype="power_out"/>
       <node ref="U5" pin="3" pinfunction="VDD" pintype="power_in"/>
     </net>
     <net code="61" name="unconnected-(U1-Pad2)">
@@ -2743,20 +2740,20 @@
     <net code="63" name="unconnected-(U1-Pad4)">
       <node ref="U1" pin="4" pinfunction="PC15" pintype="bidirectional+no_connect"/>
     </net>
-    <net code="64" name="unconnected-(U1-Pad14)">
+    <net code="64" name="unconnected-(U1-Pad5)">
+      <node ref="U1" pin="5" pinfunction="PF0" pintype="input+no_connect"/>
+    </net>
+    <net code="65" name="unconnected-(U1-Pad6)">
+      <node ref="U1" pin="6" pinfunction="PF1" pintype="input+no_connect"/>
+    </net>
+    <net code="66" name="unconnected-(U1-Pad14)">
       <node ref="U1" pin="14" pinfunction="PA4" pintype="bidirectional+no_connect"/>
     </net>
-    <net code="65" name="unconnected-(U1-Pad15)">
+    <net code="67" name="unconnected-(U1-Pad15)">
       <node ref="U1" pin="15" pinfunction="PA5" pintype="bidirectional+no_connect"/>
     </net>
-    <net code="66" name="unconnected-(U1-Pad33)">
+    <net code="68" name="unconnected-(U1-Pad33)">
       <node ref="U1" pin="33" pinfunction="PA12" pintype="bidirectional+no_connect"/>
-    </net>
-    <net code="67" name="unconnected-(U1-Pad35)">
-      <node ref="U1" pin="35" pinfunction="PF6" pintype="bidirectional+no_connect"/>
-    </net>
-    <net code="68" name="unconnected-(U1-Pad36)">
-      <node ref="U1" pin="36" pinfunction="PF7" pintype="bidirectional+no_connect"/>
     </net>
     <net code="69" name="unconnected-(U1-Pad38)">
       <node ref="U1" pin="38" pinfunction="PA15" pintype="bidirectional+no_connect"/>

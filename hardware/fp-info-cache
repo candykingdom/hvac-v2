@@ -1,4 +1,4 @@
-20378898478505285
+20387214720092406
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -53417,6 +53417,27 @@ piezo, buzzer
 2
 2
 Homebrew
+MiniPV_69167-X03XXX_1x03_P2.54mm_Polarized_Vertical
+Through hole straight pin header, 1x03, 2.54mm pitch, single row
+Through hole pin header THT 1x03 2.54mm single row
+0
+3
+3
+Homebrew
+MiniPV_69167-X06XXX_1x06_P2.54mm_Polarized_Vertical
+Through hole straight pin header, 1x06, 2.54mm pitch, single row
+Through hole pin header THT 1x06 2.54mm single row
+0
+6
+6
+Homebrew
+MiniPV_76384-X02XX_1x02_P2.54mm_Vertical
+Through hole straight pin header, 1x02, 2.54mm pitch, single row
+Through hole pin header THT 1x02 2.54mm single row
+0
+2
+2
+Homebrew
 MountingHole_2.7mm_M2.5
 Mounting Hole 2.7mm, M2.5
 mounting hole 2.7mm m2.5
@@ -53464,6 +53485,13 @@ PVA1-OA-H2
 
 0
 4
+4
+Homebrew
+Potentiometer_Bourns_PTB01X3_Single_Slide
+
+
+0
+5
 4
 Homebrew
 RFM69
@@ -53591,6 +53619,13 @@ tactile, jlc, button
 0
 4
 2
+Homebrew
+SW_Tactile_SPST_TL6300
+tactile switch SPST E-Switch 12mmx12mm IP67
+tactile SPST IP67
+0
+6
+3
 Homebrew
 TACTILE_SWITCH_SMD_4.6X2.8MM
 MOMENTARY SWITCH (PUSHBUTTON) - SPST - SMD, 4.6 X 2.8MM
@@ -79729,27 +79764,6 @@ LEM Hall Effect Voltage transducer
 0
 5
 5
-Snapeda
-HRO_TYPE-C-31-M-12
-
-
-0
-16
-16
-Snapeda
-SO-08
-<B>Small Outline Narrow Plastic Gull Wing</B><p>150-mil body, package type SN
-
-0
-8
-8
-Snapeda
-SOP127P600X175-9N
-
-
-0
-9
-9
 Socket
 3M_Textool_240-1288-00-0602J_2x20_P2.54mm
 3M 40-pin zero insertion force socket, though-hole, row spacing 25.4 mm (1000 mils)
