@@ -13,6 +13,11 @@
 const int kLedPin = PA11;
 const int kBuzzerPin = PB1;
 
+const int kFanOutputPin = PA9;
+const int kFanSensePin = PA6;
+const int kPumpOutputPin = PA10;
+const int kPumpSensePin = PA1;
+
 // Tuning constants
 const uint16_t kUpdateTempMs = 1000;
 
@@ -98,6 +103,10 @@ void setup() {
   digitalWrite(kLedPin, HIGH);
 
   pinMode(kBuzzerPin, OUTPUT);
+  pinMode(kFanOutputPin, OUTPUT);
+  pinMode(kFanSensePin, INPUT);
+  pinMode(kPumpOutputPin, OUTPUT);
+  pinMode(kPumpSensePin, INPUT);
 
   if (!inputs.Init()) {
     Serial.println("inputs.Init() failed");
@@ -120,6 +129,9 @@ void setup() {
   inputs.inside = 80;
   inputs.outside = 60;
   // inputs.water_switch = false;
+  analogWriteResolution(8);
+  // Note: don't make this too high, or it might fry the board!
+  analogWriteFrequency(500);
 }
 
 void loop() {
