@@ -30,10 +30,12 @@ const int kPumpOutputPin = PA10;
 const int kPumpSensePin = PA1;
 
 // Tuning constants
-const uint16_t kUpdateTempMs = 1000;
+constexpr uint16_t kUpdateTempMs = 1000;
+constexpr uint32_t kIdleBacklightOffMs = 5000;
 
 // State
 uint32_t update_temp_at = 0;
+uint32_t backlight_off_at = 0;
 
 const constexpr int kMaxDepth = 3;
 
@@ -81,22 +83,22 @@ bool in_idle = false;
 bool invalid = false;
 
 STM32Timer ITimer0(TIM1);
-
-void timerIsr() { clickEncoder.service(); }
+void ServiceEncoder() { clickEncoder.service(); }
 
 result idle(menuOut &o, idleEvent e) {
   switch (e) {
     case idleStart:
       o.clear();
       in_idle = true;
-      // TODO: remove?
-      Serial.println();
+      backlight_off_at = millis() + kIdleBacklightOffMs;
       break;
     case idling:
       break;
     case idleEnd:
       nav.reset();
       in_idle = false;
+      backlight_off_at = 0;
+      lcd.backlight();
       break;
   }
   return proceed;
@@ -174,7 +176,7 @@ void setup() {
   // Note: don't make this too high, or it might fry the board!
   analogWriteFrequency(50);
 
-  if (!ITimer0.attachInterruptInterval(1 * 1000, timerIsr)) {
+  if (!ITimer0.attachInterruptInterval(1 * 1000, ServiceEncoder)) {
     FatalError();
   }
 }
@@ -257,6 +259,11 @@ void loop() {
   invalid = new_invalid;
 
   digitalWrite(kLedPin, missing_water);
+
+  if (backlight_off_at && millis() > backlight_off_at) {
+    // lcd.noBacklight();
+    backlight_off_at = 0;
+  }
 
   nav.poll();
   delay(10);
