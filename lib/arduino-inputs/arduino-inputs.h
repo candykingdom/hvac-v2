@@ -1,8 +1,9 @@
 #ifndef ARDUINO_INPUTS_H_
 #define ARDUINO_INPUTS_H_
 
-#include "inputs.h"
 #include <DS18B20.h>
+
+#include "inputs.h"
 
 class ArduinoInputs : public Inputs {
  public:
@@ -12,19 +13,12 @@ class ArduinoInputs : public Inputs {
   bool GetWaterSwitch() override;
 
  private:
-#ifdef ARDUINO_TEENSYLC
-  static const int kWaterSwitchPin = 2;
-  static const uint8_t kInsidePin = 6;
-  static const uint8_t kOutsidePin = 7;
-#else
-  static const int kInsidePin = PB6;
-  static const int kOutsidePin = PB7;
-  static const int kWaterSwitchPin = PB10;
-#endif
+  static constexpr int kInsidePin = PB5;
+  static constexpr int kOutsidePin = PB7;
+  static constexpr int kWaterSwitchPin = PB10;
 
- DS18B20 inside;
- DS18B20 outside;
-
+  DS18B20 inside = DS18B20(kInsidePin);
+  DS18B20 outside = DS18B20(kOutsidePin);
 };
 
 #endif  // ARDUINO_INPUTS_H_

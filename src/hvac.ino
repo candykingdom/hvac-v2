@@ -11,7 +11,6 @@
 
 #include "arduino-inputs.h"
 #include "arduino-outputs.h"
-#include "fake-inputs.h"
 #include "fake-outputs.h"
 #include "inputs.h"
 #include "outputs.h"
@@ -43,7 +42,8 @@ int8_t swamp_threshold = 70;
 
 LiquidCrystal_I2C lcd(/*address=*/0x27, /*columns=*/16, /*rows=*/2);
 // TODO: update button to use the encoder button
-ClickEncoder clickEncoder(kEncAPin, kEncBPin, kEncButtonPin, /*stepsPerNotch=*/4);
+ClickEncoder clickEncoder(kEncAPin, kEncBPin, kEncButtonPin,
+                          /*stepsPerNotch=*/4);
 ClickEncoderStream encStream(clickEncoder, 1);
 
 result FanChanged();
@@ -73,16 +73,14 @@ Menu::outputsList out(menu_outputs, 1);
 Menu::navNode nav_cursors[kMaxDepth];
 Menu::navRoot nav(mainMenu, nav_cursors, kMaxDepth - 1, in, out);
 
-FakeInputs inputs;
+ArduinoInputs inputs;
 FakeOutputs outputs;
 
 bool in_idle = false;
 
 STM32Timer ITimer0(TIM1);
 
-void timerIsr() {
-  clickEncoder.service();
-}
+void timerIsr() { clickEncoder.service(); }
 
 result idle(menuOut &o, idleEvent e) {
   switch (e) {
@@ -120,6 +118,15 @@ void FatalError() {
   }
 }
 
+void Warning() {
+  bool on = true;
+  for (int i = 0; i < 4; i++) {
+    digitalWrite(kLedPin, on);
+    on = !on;
+    delay(500);
+  }
+}
+
 void setup() {
   pinMode(kLedPin, OUTPUT);
   digitalWrite(kLedPin, HIGH);
@@ -136,11 +143,11 @@ void setup() {
 
   if (!inputs.Init()) {
     Serial.println("inputs.Init() failed");
-    FatalError();
+    Warning();
   }
   if (!outputs.Init()) {
     Serial.println("outputs.Init() failed");
-    FatalError();
+    Warning();
   }
 
   Serial.begin(9600);
@@ -157,9 +164,6 @@ void setup() {
 
   digitalWrite(kLedPin, LOW);
 
-  inputs.inside = 80;
-  inputs.outside = 60;
-  // inputs.water_switch = false;
   analogWriteResolution(8);
   // Note: don't make this too high, or it might fry the board!
   analogWriteFrequency(50);

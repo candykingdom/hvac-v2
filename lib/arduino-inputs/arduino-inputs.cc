@@ -2,8 +2,6 @@
 
 bool ArduinoInputs::Init() {
   pinMode(kWaterSwitchPin, INPUT_PULLUP);
-  inside = DS18B20(kInsidePin);
-  outside = DS18B20(kOutsidePin);
 
   if (inside.getNumberOfDevices() < 1) {
     Serial.println("inputs: no inside temp sensor found");
@@ -20,14 +18,8 @@ bool ArduinoInputs::Init() {
   return true;
 }
 
-float ArduinoInputs::GetOutside() {
-  return outside.getTempF();
-}
+float ArduinoInputs::GetOutside() { return outside.getTempF(); }
 
-float ArduinoInputs::GetInside() {
-  return inside.getTempF();
-}
+float ArduinoInputs::GetInside() { return inside.getTempF(); }
 
-bool ArduinoInputs::GetWaterSwitch() {
-  return !digitalRead(kWaterSwitchPin);
-}
+bool ArduinoInputs::GetWaterSwitch() { return !digitalRead(kWaterSwitchPin); }
