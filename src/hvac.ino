@@ -29,6 +29,9 @@ const int kFanSensePin = PA6;
 const int kPumpOutputPin = PA10;
 const int kPumpSensePin = PA1;
 
+const int kBridgeSenseNPin = PA3;
+const int kBridgeSensePPin = PA2;
+
 // Tuning constants
 constexpr uint16_t kUpdateTempMs = 1000;
 constexpr uint32_t kIdleBacklightOffMs = 5000;
@@ -42,6 +45,10 @@ const constexpr int kMaxDepth = 3;
 int8_t set_temp = 60;
 uint8_t fan_speed = 255;
 int8_t swamp_threshold = 70;
+uint16_t fan_sense = 0;
+uint16_t pump_sense = 0;
+uint16_t bridge_sense_n = 0;
+uint16_t bridge_sense_p = 0;
 
 LiquidCrystal_I2C lcd(/*address=*/0x27, /*columns=*/16, /*rows=*/2);
 // TODO: update button to use the encoder button
@@ -52,12 +59,22 @@ ClickEncoderStream encStream(clickEncoder, 1);
 result FanChanged();
 
 // clang-format off
+MENU(senseMenu,"Sense Menu",doNothing,noEvent,wrapStyle
+  ,FIELD(fan_sense, "Fan sense", "", 0, 4096, 0, 0, doNothing, noEvent, wrapStyle)
+  ,FIELD(pump_sense, "Pump sense", "", 0, 4096, 0, 0, doNothing, noEvent, wrapStyle)
+  ,FIELD(bridge_sense_n, "Bridge P", "", 0, 4096, 0, 0, doNothing, noEvent, wrapStyle)
+  ,FIELD(bridge_sense_p, "Bridge N", "", 0, 4096, 0, 0, doNothing, noEvent, wrapStyle)
+  ,EXIT("...")
+);
+
 MENU(mainMenu,"Main menu",doNothing,noEvent,wrapStyle
   ,FIELD(set_temp, "Temp", "F", 30, 100, 10, 1, doNothing, noEvent, wrapStyle)
   ,FIELD(fan_speed, "Fan", "", 0, 255, 25, 1, FanChanged, updateEvent, wrapStyle)
   ,FIELD(swamp_threshold, "Swamp Thresh", "F", 30, 100, 10, 1, doNothing, noEvent, wrapStyle)
+  ,SUBMENU(senseMenu)
   ,EXIT("...")
 );
+
 // clang-format on
 
 MENU_INPUTS(in, &encStream);
@@ -82,8 +99,12 @@ ArduinoOutputs outputs;
 bool in_idle = false;
 bool invalid = false;
 
-STM32Timer ITimer0(TIM1);
-void ServiceEncoder() { clickEncoder.service(); }
+STM32Timer ITimer0(TIM3);
+void ServiceEncoder() {
+  digitalWrite(kLedPin, HIGH);
+  clickEncoder.service();
+  digitalWrite(kLedPin, LOW);
+}
 
 result idle(menuOut &o, idleEvent e) {
   switch (e) {
@@ -148,6 +169,9 @@ void setup() {
   pinMode(kPumpOutputPin, OUTPUT);
   pinMode(kPumpSensePin, INPUT);
 
+  pinMode(kBridgeSenseNPin, INPUT);
+  pinMode(kBridgeSensePPin, INPUT);
+
   if (!inputs.Init()) {
     Serial.println("inputs.Init() failed");
     Warning();
@@ -179,6 +203,10 @@ void setup() {
   if (!ITimer0.attachInterruptInterval(1 * 1000, ServiceEncoder)) {
     FatalError();
   }
+
+  // Make sense display read-only
+  senseMenu[0].disable();
+  senseMenu[1].disable();
 }
 
 void loop() {
@@ -288,6 +316,11 @@ void loop() {
     backlight_off_at = 0;
   }
 
+  fan_sense = analogRead(kFanSensePin);
+  pump_sense = analogRead(kPumpSensePin);
+  bridge_sense_n = analogRead(kBridgeSenseNPin);
+  bridge_sense_p = analogRead(kBridgeSensePPin);
+
   nav.poll();
-  delay(10);
+  delay(1);
 }
