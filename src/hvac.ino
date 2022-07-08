@@ -1,4 +1,11 @@
+#include <LiquidCrystal_I2C.h>
+#include <STM32TimerInterrupt.h>
+#include <STM32_ISR_Timer.h>
+#include <Wire.h>
 #include <menu.h>
+#include <menuIO/chainStream.h>
+#include <menuIO/clickEncoderIn.h>
+#include <menuIO/liquidCrystalOutI2C.h>
 #include <menuIO/serialIn.h>
 #include <menuIO/serialOut.h>
 
@@ -12,6 +19,10 @@
 // Pin definitions
 const int kLedPin = PA11;
 const int kBuzzerPin = PB1;
+const int kEncAPin = PB14;
+const int kEncBPin = PB15;
+// TODO: switch to actual encoder button once its connected to the micro
+const int kEncButtonPin = PB11;
 
 const int kFanOutputPin = PA9;
 const int kFanSensePin = PA6;
@@ -30,6 +41,11 @@ int8_t set_temp = 60;
 uint8_t fan_speed = 255;
 int8_t swamp_threshold = 70;
 
+LiquidCrystal_I2C lcd(/*address=*/0x27, /*columns=*/16, /*rows=*/2);
+// TODO: update button to use the encoder button
+ClickEncoder clickEncoder(kEncAPin, kEncBPin, kEncButtonPin, /*stepsPerNotch=*/4);
+ClickEncoderStream encStream(clickEncoder, 1);
+
 result FanChanged();
 
 // clang-format off
@@ -41,16 +57,16 @@ MENU(mainMenu,"Main menu",doNothing,noEvent,wrapStyle
 );
 // clang-format on
 
-serialIn in(Serial);
-
+MENU_INPUTS(in, &encStream);
 const Menu::panel panels[] MEMMODE = {{0, 0, 16, 2}};
 Menu::navNode *nodes[sizeof(panels) / sizeof(Menu::panel)];
 Menu::panelsList pList(panels, nodes, 1);
 
 Menu::idx_t serialTops[kMaxDepth];
-Menu::serialOut outSerial(Serial, serialTops);
+// Menu::serialOut outSerial(Serial, serialTops);
+Menu::liquidCrystalOut outLCD(lcd, serialTops, pList);
 
-Menu::menuOut *menu_outputs[] MEMMODE = {&outSerial};
+Menu::menuOut *menu_outputs[] MEMMODE = {&outLCD};
 Menu::outputsList out(menu_outputs, 1);
 
 // aux objects to control each level of navigation
@@ -61,6 +77,12 @@ FakeInputs inputs;
 FakeOutputs outputs;
 
 bool in_idle = false;
+
+STM32Timer ITimer0(TIM1);
+
+void timerIsr() {
+  clickEncoder.service();
+}
 
 result idle(menuOut &o, idleEvent e) {
   switch (e) {
@@ -103,6 +125,10 @@ void setup() {
   digitalWrite(kLedPin, HIGH);
 
   pinMode(kBuzzerPin, OUTPUT);
+  pinMode(kEncAPin, INPUT);
+  pinMode(kEncBPin, INPUT);
+  pinMode(kEncButtonPin, INPUT_PULLUP);
+
   pinMode(kFanOutputPin, OUTPUT);
   pinMode(kFanSensePin, INPUT);
   pinMode(kPumpOutputPin, OUTPUT);
@@ -124,6 +150,11 @@ void setup() {
   nav.idleTask = idle;
   nav.useUpdateEvent = true;
 
+  Wire.setSCL(PF6);
+  Wire.setSDA(PF7);
+  lcd.init();
+  lcd.backlight();
+
   digitalWrite(kLedPin, LOW);
 
   inputs.inside = 80;
@@ -131,16 +162,20 @@ void setup() {
   // inputs.water_switch = false;
   analogWriteResolution(8);
   // Note: don't make this too high, or it might fry the board!
-  analogWriteFrequency(500);
+  analogWriteFrequency(50);
+
+  if (!ITimer0.attachInterruptInterval(1 * 1000, timerIsr)) {
+    FatalError();
+  }
 }
 
 void loop() {
   if (in_idle && millis() > update_temp_at) {
-    // TODO: output to screen
-    Serial.print("Out ");
-    Serial.print(inputs.GetOutside(), /* digits= */ 0);
-    Serial.print("   In ");
-    Serial.println(inputs.GetInside(), /* digits= */ 0);
+    lcd.home();
+    lcd.print("Out ");
+    lcd.print(inputs.GetOutside(), /* digits= */ 0);
+    lcd.print("   In ");
+    lcd.print(inputs.GetInside(), /* digits= */ 0);
     update_temp_at = millis() + kUpdateTempMs;
   }
 
