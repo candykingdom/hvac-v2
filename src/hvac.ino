@@ -34,7 +34,7 @@ constexpr uint16_t kUpdateTempMs = 1000;
 constexpr uint32_t kIdleBacklightOffMs = 5000;
 
 // State
-uint32_t update_temp_at = 0;
+uint32_t update_display_at = 0;
 uint32_t backlight_off_at = 0;
 
 const constexpr int kMaxDepth = 3;
@@ -77,7 +77,7 @@ Menu::navNode nav_cursors[kMaxDepth];
 Menu::navRoot nav(mainMenu, nav_cursors, kMaxDepth - 1, in, out);
 
 ArduinoInputs inputs;
-FakeOutputs outputs;
+ArduinoOutputs outputs;
 
 bool in_idle = false;
 bool invalid = false;
@@ -182,7 +182,7 @@ void setup() {
 }
 
 void loop() {
-  if (in_idle && millis() > update_temp_at) {
+  if (in_idle && millis() > update_display_at) {
     lcd.home();
     lcd.print("Out ");
     float outside = inputs.GetOutside();
@@ -199,10 +199,33 @@ void loop() {
     } else {
       lcd.print(inputs.GetInside(), /* digits= */ 0);
     }
-    update_temp_at = millis() + kUpdateTempMs;
+
+    lcd.setCursor(/*col=*/0, /*row=*/1);
+    lcd.print("Fan ");
+    uint8_t fan = outputs.GetFan();
+    if (fan == 255) {
+      lcd.print(" ON");
+    } else if (fan == 0) {
+      lcd.print("OFF");
+    } else {
+      lcd.print(fan);
+    }
+
+    lcd.print(" Pump ");
+    uint8_t pump = outputs.GetPump();
+    if (pump == 255) {
+      lcd.print(" ON");
+    } else if (pump == 0) {
+      lcd.print("OFF");
+    } else {
+      lcd.print(pump);
+    }
+
+    update_display_at = millis() + kUpdateTempMs;
   }
 
   bool missing_water = false;
+  // TODO: how should temp control behave when a temp is invalid?
   bool new_invalid = false;
   float inside = inputs.GetInside();
   if (inside <= ArduinoInputs::kNoTemp) {

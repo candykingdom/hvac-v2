@@ -19,6 +19,10 @@ class Outputs {
     pump_ = value;
   }
 
+  uint8_t GetPump() {
+    return pump_;
+  }
+
   protected:
   uint8_t fan_;
   uint8_t pump_;
