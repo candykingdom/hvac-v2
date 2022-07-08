@@ -18,8 +18,18 @@ bool ArduinoInputs::Init() {
   return true;
 }
 
-float ArduinoInputs::GetOutside() { return outside.getTempF(); }
+float ArduinoInputs::GetOutside() {
+  if (outside.getNumberOfDevices() < 1) {
+    return kNoTemp;
+  }
+  return outside.getTempF();
+}
 
-float ArduinoInputs::GetInside() { return inside.getTempF(); }
+float ArduinoInputs::GetInside() {
+  if (inside.getNumberOfDevices() < 1) {
+    return kNoTemp;
+  }
+  return inside.getTempF();
+}
 
 bool ArduinoInputs::GetWaterSwitch() { return !digitalRead(kWaterSwitchPin); }

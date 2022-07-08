@@ -1,6 +1,7 @@
 #include <LiquidCrystal_I2C.h>
 #include <STM32TimerInterrupt.h>
 #include <STM32_ISR_Timer.h>
+#include <Tone.h>
 #include <Wire.h>
 #include <menu.h>
 #include <menuIO/chainStream.h>
@@ -77,6 +78,7 @@ ArduinoInputs inputs;
 FakeOutputs outputs;
 
 bool in_idle = false;
+bool invalid = false;
 
 STM32Timer ITimer0(TIM1);
 
@@ -122,6 +124,9 @@ void Warning() {
   bool on = true;
   for (int i = 0; i < 4; i++) {
     digitalWrite(kLedPin, on);
+    if (on) {
+      tone(kBuzzerPin, 2000, 500);
+    }
     on = !on;
     delay(500);
   }
@@ -144,6 +149,7 @@ void setup() {
   if (!inputs.Init()) {
     Serial.println("inputs.Init() failed");
     Warning();
+    invalid = true;
   }
   if (!outputs.Init()) {
     Serial.println("outputs.Init() failed");
@@ -177,16 +183,42 @@ void loop() {
   if (in_idle && millis() > update_temp_at) {
     lcd.home();
     lcd.print("Out ");
-    lcd.print(inputs.GetOutside(), /* digits= */ 0);
+    float outside = inputs.GetOutside();
+    if (outside <= ArduinoInputs::kNoTemp) {
+      lcd.print("NA");
+    } else {
+      lcd.print(inputs.GetOutside(), /* digits= */ 0);
+    }
+
     lcd.print("   In ");
-    lcd.print(inputs.GetInside(), /* digits= */ 0);
+    float inside = inputs.GetInside();
+    if (inside <= ArduinoInputs::kNoTemp) {
+      lcd.print("NA");
+    } else {
+      lcd.print(inputs.GetInside(), /* digits= */ 0);
+    }
     update_temp_at = millis() + kUpdateTempMs;
   }
 
   bool missing_water = false;
+  bool new_invalid = false;
   float inside = inputs.GetInside();
+  if (inside <= ArduinoInputs::kNoTemp) {
+    if (!invalid) {
+      Warning();
+    }
+    invalid = true;
+    new_invalid = true;
+  }
   if (inside > set_temp) {
     float outside = inputs.GetOutside();
+    if (outside <= ArduinoInputs::kNoTemp) {
+      if (!invalid) {
+        Warning();
+      }
+      invalid = true;
+      new_invalid = true;
+    }
     if (outside > inside) {
       if (outside > swamp_threshold) {
         if (inputs.GetWaterSwitch()) {
@@ -221,6 +253,8 @@ void loop() {
     outputs.SetFan(0);
     outputs.SetPump(0);
   }
+
+  invalid = new_invalid;
 
   digitalWrite(kLedPin, missing_water);
 

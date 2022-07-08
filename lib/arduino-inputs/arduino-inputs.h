@@ -12,6 +12,8 @@ class ArduinoInputs : public Inputs {
   float GetInside() override;
   bool GetWaterSwitch() override;
 
+  static constexpr float kNoTemp = -459.67;
+
  private:
   static constexpr int kInsidePin = PB5;
   static constexpr int kOutsidePin = PB7;
