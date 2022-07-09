@@ -40,11 +40,15 @@ constexpr uint32_t kIdleBacklightOffMs = 5000;
 uint32_t update_display_at = 0;
 uint32_t backlight_off_at = 0;
 
-const constexpr int kMaxDepth = 3;
+const constexpr int kMaxDepth = 4;
 
+// Menu settings
 int8_t set_temp = 60;
 uint8_t fan_speed = 180;
 int8_t swamp_threshold = 70;
+
+bool sound_on = true;
+
 uint16_t fan_sense = 0;
 uint16_t pump_sense = 0;
 uint16_t bridge_sense_n = 0;
@@ -59,7 +63,17 @@ ClickEncoderStream encStream(clickEncoder, 1);
 result FanChanged();
 
 // clang-format off
-MENU(senseMenu,"Sense Menu",doNothing,noEvent,wrapStyle
+TOGGLE(sound_on, sound_on_menu, "Sound: ", doNothing, noEvent, wrapStyle
+  ,VALUE("On", true, doNothing, noEvent)
+  ,VALUE("Off", false, doNothing, noEvent)
+);
+
+MENU(config_menu,"Config",doNothing,noEvent,wrapStyle
+  ,SUBMENU(sound_on_menu)
+  ,EXIT("...")
+);
+
+MENU(sense_menu,"Sense",doNothing,noEvent,wrapStyle
   ,FIELD(fan_sense, "Fan sense", "", 0, 4096, 0, 0, doNothing, noEvent, wrapStyle)
   ,FIELD(pump_sense, "Pump sense", "", 0, 4096, 0, 0, doNothing, noEvent, wrapStyle)
   ,FIELD(bridge_sense_n, "Bridge P", "", 0, 4096, 0, 0, doNothing, noEvent, wrapStyle)
@@ -67,11 +81,12 @@ MENU(senseMenu,"Sense Menu",doNothing,noEvent,wrapStyle
   ,EXIT("...")
 );
 
-MENU(mainMenu,"Main menu",doNothing,noEvent,wrapStyle
+MENU(main_menu,"Main menu",doNothing,noEvent,wrapStyle
   ,FIELD(set_temp, "Temp", "F", 30, 100, 10, 1, doNothing, noEvent, wrapStyle)
   ,FIELD(fan_speed, "Fan", "", 0, 255, 25, 1, FanChanged, updateEvent, wrapStyle)
   ,FIELD(swamp_threshold, "Swamp Thresh", "F", 30, 100, 10, 1, doNothing, noEvent, wrapStyle)
-  ,SUBMENU(senseMenu)
+  ,SUBMENU(config_menu)
+  ,SUBMENU(sense_menu)
   ,EXIT("...")
 );
 
@@ -91,7 +106,7 @@ Menu::outputsList out(menu_outputs, 1);
 
 // aux objects to control each level of navigation
 Menu::navNode nav_cursors[kMaxDepth];
-Menu::navRoot nav(mainMenu, nav_cursors, kMaxDepth - 1, in, out);
+Menu::navRoot nav(main_menu, nav_cursors, kMaxDepth - 1, in, out);
 
 ArduinoInputs inputs;
 ArduinoOutputs outputs;
@@ -143,6 +158,9 @@ result FanChanged() {
 // In case of non-recoverable error, fast-blink the LED
 void FatalError() {
   bool on = true;
+  if (sound_on) {
+    tone(kBuzzerPin, 4000, 100);
+  }
   while (true) {
     digitalWrite(kLedPin, on);
     on = !on;
@@ -154,8 +172,8 @@ void Warning() {
   bool on = true;
   for (int i = 0; i < 4; i++) {
     digitalWrite(kLedPin, on);
-    if (on) {
-      tone(kBuzzerPin, 2000, 500);
+    if (on && sound_on) {
+      tone(kBuzzerPin, 4000, 500);
     }
     on = !on;
     delay(500);
@@ -212,10 +230,10 @@ void setup() {
   ISR_Timer.setInterval(1, ServiceEncoder);
 
   // Make sense display read-only
-  senseMenu[0].disable();
-  senseMenu[1].disable();
-  senseMenu[2].disable();
-  senseMenu[3].disable();
+  sense_menu[0].disable();
+  sense_menu[1].disable();
+  sense_menu[2].disable();
+  sense_menu[3].disable();
 }
 
 void loop() {
