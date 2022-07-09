@@ -43,7 +43,7 @@ uint32_t backlight_off_at = 0;
 const constexpr int kMaxDepth = 3;
 
 int8_t set_temp = 60;
-uint8_t fan_speed = 255;
+uint8_t fan_speed = 180;
 int8_t swamp_threshold = 70;
 uint16_t fan_sense = 0;
 uint16_t pump_sense = 0;
@@ -99,11 +99,18 @@ ArduinoOutputs outputs;
 bool in_idle = false;
 bool invalid = false;
 
-STM32Timer ITimer0(TIM3);
+STM32Timer ITimer(TIM3);
+STM32_ISR_Timer ISR_Timer;
+
+void TimerHandler() {
+  ISR_Timer.run();
+  outputs.Tick();
+}
+
 void ServiceEncoder() {
-  digitalWrite(kLedPin, HIGH);
+  // digitalWrite(kLedPin, HIGH);
   clickEncoder.service();
-  digitalWrite(kLedPin, LOW);
+  // digitalWrite(kLedPin, LOW);
 }
 
 result idle(menuOut &o, idleEvent e) {
@@ -181,6 +188,7 @@ void setup() {
     Serial.println("outputs.Init() failed");
     Warning();
   }
+  outputs.SetFanDirection(true);
 
   Serial.begin(9600);
   while (!Serial)
@@ -196,17 +204,18 @@ void setup() {
 
   digitalWrite(kLedPin, LOW);
 
-  analogWriteResolution(8);
-  // Note: don't make this too high, or it might fry the board!
-  analogWriteFrequency(50);
-
-  if (!ITimer0.attachInterruptInterval(1 * 1000, ServiceEncoder)) {
+  // 75uS * 256 ~= 50Hz
+  if (!ITimer.attachInterruptInterval(75, TimerHandler)) {
     FatalError();
   }
+  // Poll the encoder every 1ms
+  ISR_Timer.setInterval(1, ServiceEncoder);
 
   // Make sense display read-only
   senseMenu[0].disable();
   senseMenu[1].disable();
+  senseMenu[2].disable();
+  senseMenu[3].disable();
 }
 
 void loop() {
