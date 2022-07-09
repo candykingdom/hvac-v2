@@ -6,6 +6,7 @@ bool ArduinoOutputs::Init() {
   analogWriteResolution(8);
   analogWriteFrequency(kMosfetPwmFrequency);
 
+  pinMode(kLedPin, OUTPUT);
   pinMode(kFanPin, OUTPUT);
   pinMode(kPumpPin, OUTPUT);
   pinMode(kBridgeNPin, OUTPUT);
@@ -13,6 +14,8 @@ bool ArduinoOutputs::Init() {
   pinMode(kBridgeEnablePin, OUTPUT);
   digitalWrite(kBridgeEnablePin, LOW);
   pinMode(kPwmSignalPin, OUTPUT);
+
+  SetFanDirection(true);
 
   return true;
 }
@@ -26,8 +29,15 @@ void ArduinoOutputs::SetFan(uint8_t value) {
 
 void ArduinoOutputs::SetFanDirection(bool direction) {
   fan_direction_ = direction;
-  digitalWrite(kBridgeNPin, !fan_direction_);
-  digitalWrite(kBridgePPin, fan_direction_);
+  if (fan_type_ == FanType::BRIDGE) {
+    digitalWrite(kBridgeNPin, !fan_direction_);
+    digitalWrite(kBridgePPin, fan_direction_);
+  }
+}
+
+void ArduinoOutputs::SetLed(bool on) {
+  led_ = on;
+  digitalWrite(kLedPin, on);
 }
 
 void ArduinoOutputs::Tick() {

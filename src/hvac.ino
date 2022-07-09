@@ -15,22 +15,19 @@
 #include "fake-outputs.h"
 #include "inputs.h"
 #include "outputs.h"
+#include "runner.h"
 
 // Pin definitions
-const int kLedPin = PA11;
-const int kBuzzerPin = PB1;
-const int kEncAPin = PB14;
-const int kEncBPin = PB15;
+constexpr int kBuzzerPin = PB1;
+constexpr int kEncAPin = PB14;
+constexpr int kEncBPin = PB15;
 // TODO: switch to actual encoder button once its connected to the micro
-const int kEncButtonPin = PB11;
+constexpr int kEncButtonPin = PB11;
 
-const int kFanOutputPin = PA9;
-const int kFanSensePin = PA6;
-const int kPumpOutputPin = PA10;
-const int kPumpSensePin = PA1;
-
-const int kBridgeSenseNPin = PA3;
-const int kBridgeSensePPin = PA2;
+constexpr int kFanSensePin = PA6;
+constexpr int kPumpSensePin = PA1;
+constexpr int kBridgeSenseNPin = PA3;
+constexpr int kBridgeSensePPin = PA2;
 
 // Tuning constants
 constexpr uint16_t kUpdateTempMs = 1000;
@@ -42,16 +39,14 @@ uint32_t backlight_off_at = 0;
 
 const constexpr int kMaxDepth = 4;
 
-// Menu settings
-int8_t set_temp = 60;
-uint8_t fan_speed = 180;
-uint8_t pump_speed = 255;
-int8_t swamp_threshold = 70;
+ArduinoInputs inputs;
+ArduinoOutputs outputs;
+
+RunnerParams runner_params;
+Runner runner(runner_params, inputs, outputs);
 
 // Config options
 bool sound_on = true;
-bool mode_auto = true;
-bool use_water_switch = true;
 
 uint16_t fan_sense = 0;
 uint16_t pump_sense = 0;
@@ -64,15 +59,13 @@ ClickEncoder clickEncoder(kEncAPin, kEncBPin, kEncButtonPin,
                           /*stepsPerNotch=*/4);
 ClickEncoderStream encStream(clickEncoder, 1);
 
-result FanChanged();
-
 // clang-format off
 TOGGLE(sound_on, sound_on_menu, "Sound:", doNothing, noEvent, wrapStyle
   ,VALUE("On", true, doNothing, noEvent)
   ,VALUE("Off", false, doNothing, noEvent)
 );
 
-TOGGLE(use_water_switch, water_switch_menu, "WaterSwitch:", doNothing, noEvent, wrapStyle
+TOGGLE(runner_params.use_water_switch, water_switch_menu, "WaterSwitch:", doNothing, noEvent, wrapStyle
   ,VALUE("Yes", true, doNothing, noEvent)
   ,VALUE(" No", false, doNothing, noEvent)
 );
@@ -91,16 +84,16 @@ MENU(sense_menu,"Sense",doNothing,noEvent,wrapStyle
   ,EXIT("...")
 );
 
-TOGGLE(mode_auto, mode_menu, "Mode:", doNothing, noEvent, wrapStyle
+TOGGLE(runner_params.mode_auto, mode_menu, "Mode:", doNothing, noEvent, wrapStyle
   ,VALUE("Auto", true, doNothing, noEvent)
   ,VALUE("Manual", false, doNothing, noEvent)
 );
 
 MENU(main_menu,"Main menu",doNothing,noEvent,wrapStyle
-  ,FIELD(set_temp, "Temp", "F", 30, 100, 10, 1, doNothing, noEvent, wrapStyle)
-  ,FIELD(fan_speed, "Fan", "", 0, 255, 25, 1, FanChanged, updateEvent, wrapStyle)
-  ,FIELD(pump_speed, "Pump", "", 0, 255, 25, 1, doNothing, updateEvent, wrapStyle)
-  ,FIELD(swamp_threshold, "Swamp Thresh", "F", 30, 100, 10, 1, doNothing, noEvent, wrapStyle)
+  ,FIELD(runner_params.set_temp, "Temp", "F", 30, 100, 10, 1, doNothing, noEvent, wrapStyle)
+  ,FIELD(runner_params.fan_speed, "Fan", "", 0, 255, 25, 1, doNothing, updateEvent, wrapStyle)
+  ,FIELD(runner_params.pump_speed, "Pump", "", 0, 255, 25, 1, doNothing, updateEvent, wrapStyle)
+  ,FIELD(runner_params.swamp_threshold, "Swamp Thresh", "F", 30, 100, 10, 1, doNothing, noEvent, wrapStyle)
   ,SUBMENU(mode_menu)
   ,SUBMENU(config_menu)
   ,SUBMENU(sense_menu)
@@ -124,9 +117,6 @@ Menu::outputsList out(menu_outputs, 1);
 // aux objects to control each level of navigation
 Menu::navNode nav_cursors[kMaxDepth];
 Menu::navRoot nav(main_menu, nav_cursors, kMaxDepth - 1, in, out);
-
-ArduinoInputs inputs;
-ArduinoOutputs outputs;
 
 bool in_idle = false;
 bool invalid = false;
@@ -164,14 +154,6 @@ result idle(menuOut &o, idleEvent e) {
   return proceed;
 }
 
-result FanChanged() {
-  Serial.println("Fan changed");
-  if (outputs.GetFan() > 0) {
-    outputs.SetFan(fan_speed);
-  }
-  return proceed;
-}
-
 // In case of non-recoverable error, fast-blink the LED
 void FatalError() {
   bool on = true;
@@ -179,7 +161,7 @@ void FatalError() {
     tone(kBuzzerPin, 4000, 100);
   }
   while (true) {
-    digitalWrite(kLedPin, on);
+    outputs.SetLed(on);
     on = !on;
     delay(200);
   }
@@ -188,7 +170,7 @@ void FatalError() {
 void Warning() {
   bool on = true;
   for (int i = 0; i < 4; i++) {
-    digitalWrite(kLedPin, on);
+    outputs.SetLed(on);
     if (on && sound_on) {
       tone(kBuzzerPin, 4000, 500);
     }
@@ -198,17 +180,17 @@ void Warning() {
 }
 
 void setup() {
-  pinMode(kLedPin, OUTPUT);
-  digitalWrite(kLedPin, HIGH);
+  if (!outputs.Init()) {
+    Serial.println("outputs.Init() failed");
+    Warning();
+  }
 
   pinMode(kBuzzerPin, OUTPUT);
   pinMode(kEncAPin, INPUT);
   pinMode(kEncBPin, INPUT);
   pinMode(kEncButtonPin, INPUT_PULLUP);
 
-  pinMode(kFanOutputPin, OUTPUT);
   pinMode(kFanSensePin, INPUT);
-  pinMode(kPumpOutputPin, OUTPUT);
   pinMode(kPumpSensePin, INPUT);
 
   pinMode(kBridgeSenseNPin, INPUT);
@@ -219,12 +201,6 @@ void setup() {
     Warning();
     invalid = true;
   }
-  if (!outputs.Init()) {
-    Serial.println("outputs.Init() failed");
-    Warning();
-  }
-  outputs.SetFanDirection(true);
-
   Serial.begin(9600);
   while (!Serial)
     ;
@@ -236,8 +212,6 @@ void setup() {
   Wire.setSDA(PF7);
   lcd.init();
   lcd.backlight();
-
-  digitalWrite(kLedPin, LOW);
 
   // 75uS * 256 ~= 50Hz
   if (!ITimer.attachInterruptInterval(75, TimerHandler)) {
@@ -296,87 +270,6 @@ void loop() {
     update_display_at = millis() + kUpdateTempMs;
   }
 
-  if (mode_auto) {
-    bool missing_water = false;
-    // TODO: how should temp control behave when a temp is invalid?
-    bool new_invalid = false;
-    float inside = inputs.GetInside();
-    if (inside <= ArduinoInputs::kNoTemp) {
-      if (!invalid) {
-        Warning();
-      }
-      invalid = true;
-      new_invalid = true;
-    }
-    float outside = inputs.GetOutside();
-    if (outside <= ArduinoInputs::kNoTemp) {
-      if (!invalid) {
-        Warning();
-      }
-      invalid = true;
-      new_invalid = true;
-    }
-
-    if (inside > set_temp) {
-      if (outside > inside) {
-        if (outside > swamp_threshold) {
-          if (use_water_switch) {
-            if (inputs.GetWaterSwitch()) {
-              outputs.SetPump(pump_speed);
-              outputs.SetFan(fan_speed);
-            } else {
-              // Swamp is requested, but not available.
-              outputs.SetFan(0);
-              outputs.SetPump(0);
-              missing_water = true;
-            }
-          } else {
-            // No water switch
-            outputs.SetPump(pump_speed);
-            outputs.SetFan(fan_speed);
-          }
-        } else {
-          // outside < swamp_threshold
-          outputs.SetFan(0);
-          outputs.SetPump(0);
-        }
-      } else {
-        // outside < inside
-        outputs.SetFan(fan_speed);
-        if (outside > swamp_threshold) {
-          if (use_water_switch) {
-            if (inputs.GetWaterSwitch()) {
-              outputs.SetPump(pump_speed);
-            } else {
-              // Swamp is requested, but not available.
-              missing_water = true;
-              outputs.SetPump(0);
-            }
-          } else {
-            // No water switch
-            outputs.SetPump(pump_speed);
-          }
-        }
-      }
-    } else {
-      // inside < set_temp
-      outputs.SetFan(0);
-      outputs.SetPump(0);
-    }
-
-    invalid = new_invalid;
-
-    if (use_water_switch) {
-      digitalWrite(kLedPin, missing_water);
-    }
-  } else {
-    // Manual mode
-    if (use_water_switch && !inputs.GetWaterSwitch()) {
-    } else {
-      outputs.SetFan(fan_speed);
-      outputs.SetPump(pump_speed);
-    }
-  }
 
   if (backlight_off_at && millis() > backlight_off_at) {
     // lcd.noBacklight();

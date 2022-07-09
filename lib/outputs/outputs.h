@@ -11,7 +11,7 @@ enum class FanType {
 
 class Outputs {
  public:
-  virtual bool Init();
+  virtual bool Init() = 0;
 
   virtual void SetFan(uint8_t value) { fan_ = value; }
 
@@ -23,13 +23,18 @@ class Outputs {
 
   uint8_t GetPump() { return pump_; }
 
-  // Updates MOSFET/Bridge outputs. Call at 50Hz.
+  virtual void SetLed(bool on) { led_ = on; }
+
+  bool GetLed() { return led_; }
+
+  // Updates MOSFET/Bridge outputs. Call at 50Hz * 256.
   virtual void Tick() = 0;
 
  protected:
   uint8_t fan_;
-  bool fan_direction_;
+  bool fan_direction_ = true;
   uint8_t pump_;
+  bool led_ = false;
 
   static constexpr FanType fan_type_ = FanType::BRIDGE;
 };

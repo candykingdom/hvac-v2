@@ -9,10 +9,12 @@ class ArduinoOutputs : public Outputs {
   bool Init() override;
   void SetFan(uint8_t value) override;
   void SetFanDirection(bool direction) override;
+  void SetLed(bool on) override;
   void Tick() override;
 
  private:
   uint8_t pwm_counter_ = 0;
+  static constexpr int kLedPin = PA11;
   static constexpr int kFanPin = PA9;
   static constexpr int kPumpPin = PA10;
   static constexpr int kBridgeNPin = PB2;

@@ -3,10 +3,12 @@
 
 class Inputs {
  public:
-  virtual bool Init();
-  virtual float GetOutside();
-  virtual float GetInside();
-  virtual bool GetWaterSwitch();
+  virtual bool Init() = 0;
+  virtual float GetOutside() = 0;
+  virtual float GetInside() = 0;
+  virtual bool GetWaterSwitch() = 0;
+
+  static constexpr float kNoTemp = -459.67;
 };
 
 #endif  // INPUTS_H_

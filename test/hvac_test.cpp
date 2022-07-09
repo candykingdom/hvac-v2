@@ -1,6 +1,32 @@
 #include <gtest/gtest.h>
 
-TEST(Hvac, Initializes) { EXPECT_EQ(1, 1); }
+#include "fake-inputs.h"
+#include "fake-outputs.h"
+#include "runner.h"
+
+bool warning_ = false;
+
+void Warning() {
+  warning_ = true;
+}
+
+class HvacTest : public ::testing::Test {
+  protected:
+
+  RunnerParams runner_params;
+  FakeInputs inputs;
+  FakeOutputs outputs;
+  Runner runner = Runner(runner_params, inputs, outputs);
+
+  void SetUp() override {
+    ASSERT_TRUE(inputs.Init());
+    ASSERT_TRUE(outputs.Init());
+  }
+};
+
+TEST_F(HvacTest, Initializes) { 
+  runner.Tick();
+ }
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

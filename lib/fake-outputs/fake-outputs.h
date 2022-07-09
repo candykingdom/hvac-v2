@@ -8,6 +8,7 @@ class FakeOutputs : public Outputs {
   bool Init() override;
   void SetFan(uint8_t value) override;
   void SetPump(uint8_t value) override;
+  void Tick() override {}
 };
 
 #endif  // FAKE_OUTPUTS_H_
