@@ -119,7 +119,6 @@ Menu::navNode nav_cursors[kMaxDepth];
 Menu::navRoot nav(main_menu, nav_cursors, kMaxDepth - 1, in, out);
 
 bool in_idle = false;
-bool invalid = false;
 
 STM32Timer ITimer(TIM3);
 STM32_ISR_Timer ISR_Timer;
@@ -199,7 +198,6 @@ void setup() {
   if (!inputs.Init()) {
     Serial.println("inputs.Init() failed");
     Warning();
-    invalid = true;
   }
   Serial.begin(9600);
   while (!Serial)

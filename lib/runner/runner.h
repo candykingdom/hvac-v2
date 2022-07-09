@@ -6,12 +6,12 @@
 #include "outputs.h"
 
 struct RunnerParams {
-  bool mode_auto;
-  bool use_water_switch;
-  int8_t set_temp;
-  int8_t swamp_threshold;
-  uint8_t fan_speed;
-  uint8_t pump_speed;
+  bool mode_auto = true;
+  bool use_water_switch = true;
+  int8_t set_temp = 60;
+  int8_t swamp_threshold = 70;
+  uint8_t fan_speed = 255;
+  uint8_t pump_speed = 255;
 };
 
 class Runner {
