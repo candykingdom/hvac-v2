@@ -45,9 +45,13 @@ const constexpr int kMaxDepth = 4;
 // Menu settings
 int8_t set_temp = 60;
 uint8_t fan_speed = 180;
+uint8_t pump_speed = 255;
 int8_t swamp_threshold = 70;
 
+// Config options
 bool sound_on = true;
+bool mode_auto = true;
+bool use_water_switch = true;
 
 uint16_t fan_sense = 0;
 uint16_t pump_sense = 0;
@@ -63,12 +67,18 @@ ClickEncoderStream encStream(clickEncoder, 1);
 result FanChanged();
 
 // clang-format off
-TOGGLE(sound_on, sound_on_menu, "Sound: ", doNothing, noEvent, wrapStyle
+TOGGLE(sound_on, sound_on_menu, "Sound:", doNothing, noEvent, wrapStyle
   ,VALUE("On", true, doNothing, noEvent)
   ,VALUE("Off", false, doNothing, noEvent)
 );
 
+TOGGLE(use_water_switch, water_switch_menu, "WaterSwitch:", doNothing, noEvent, wrapStyle
+  ,VALUE("Yes", true, doNothing, noEvent)
+  ,VALUE(" No", false, doNothing, noEvent)
+);
+
 MENU(config_menu,"Config",doNothing,noEvent,wrapStyle
+  ,SUBMENU(water_switch_menu)
   ,SUBMENU(sound_on_menu)
   ,EXIT("...")
 );
@@ -81,10 +91,17 @@ MENU(sense_menu,"Sense",doNothing,noEvent,wrapStyle
   ,EXIT("...")
 );
 
+TOGGLE(mode_auto, mode_menu, "Mode:", doNothing, noEvent, wrapStyle
+  ,VALUE("Auto", true, doNothing, noEvent)
+  ,VALUE("Manual", false, doNothing, noEvent)
+);
+
 MENU(main_menu,"Main menu",doNothing,noEvent,wrapStyle
   ,FIELD(set_temp, "Temp", "F", 30, 100, 10, 1, doNothing, noEvent, wrapStyle)
   ,FIELD(fan_speed, "Fan", "", 0, 255, 25, 1, FanChanged, updateEvent, wrapStyle)
+  ,FIELD(pump_speed, "Pump", "", 0, 255, 25, 1, doNothing, updateEvent, wrapStyle)
   ,FIELD(swamp_threshold, "Swamp Thresh", "F", 30, 100, 10, 1, doNothing, noEvent, wrapStyle)
+  ,SUBMENU(mode_menu)
   ,SUBMENU(config_menu)
   ,SUBMENU(sense_menu)
   ,EXIT("...")
@@ -279,18 +296,18 @@ void loop() {
     update_display_at = millis() + kUpdateTempMs;
   }
 
-  bool missing_water = false;
-  // TODO: how should temp control behave when a temp is invalid?
-  bool new_invalid = false;
-  float inside = inputs.GetInside();
-  if (inside <= ArduinoInputs::kNoTemp) {
-    if (!invalid) {
-      Warning();
+  if (mode_auto) {
+    bool missing_water = false;
+    // TODO: how should temp control behave when a temp is invalid?
+    bool new_invalid = false;
+    float inside = inputs.GetInside();
+    if (inside <= ArduinoInputs::kNoTemp) {
+      if (!invalid) {
+        Warning();
+      }
+      invalid = true;
+      new_invalid = true;
     }
-    invalid = true;
-    new_invalid = true;
-  }
-  if (inside > set_temp) {
     float outside = inputs.GetOutside();
     if (outside <= ArduinoInputs::kNoTemp) {
       if (!invalid) {
@@ -299,44 +316,67 @@ void loop() {
       invalid = true;
       new_invalid = true;
     }
-    if (outside > inside) {
-      if (outside > swamp_threshold) {
-        if (inputs.GetWaterSwitch()) {
-          outputs.SetPump(255);
-          outputs.SetFan(fan_speed);
+
+    if (inside > set_temp) {
+      if (outside > inside) {
+        if (outside > swamp_threshold) {
+          if (use_water_switch) {
+            if (inputs.GetWaterSwitch()) {
+              outputs.SetPump(pump_speed);
+              outputs.SetFan(fan_speed);
+            } else {
+              // Swamp is requested, but not available.
+              outputs.SetFan(0);
+              outputs.SetPump(0);
+              missing_water = true;
+            }
+          } else {
+            // No water switch
+            outputs.SetPump(pump_speed);
+            outputs.SetFan(fan_speed);
+          }
         } else {
-          // Swamp is requested, but not available.
+          // outside < swamp_threshold
           outputs.SetFan(0);
           outputs.SetPump(0);
-          missing_water = true;
         }
       } else {
-        // outside < swamp_threshold
-        outputs.SetFan(0);
-        outputs.SetPump(0);
-      }
-    } else {
-      // outside < inside
-      outputs.SetFan(fan_speed);
-      if (outside > swamp_threshold) {
-        if (inputs.GetWaterSwitch()) {
-          outputs.SetPump(255);
-        } else {
-          // Swamp is requested, but not available.
-          missing_water = true;
-          outputs.SetPump(0);
+        // outside < inside
+        outputs.SetFan(fan_speed);
+        if (outside > swamp_threshold) {
+          if (use_water_switch) {
+            if (inputs.GetWaterSwitch()) {
+              outputs.SetPump(pump_speed);
+            } else {
+              // Swamp is requested, but not available.
+              missing_water = true;
+              outputs.SetPump(0);
+            }
+          } else {
+            // No water switch
+            outputs.SetPump(pump_speed);
+          }
         }
       }
+    } else {
+      // inside < set_temp
+      outputs.SetFan(0);
+      outputs.SetPump(0);
+    }
+
+    invalid = new_invalid;
+
+    if (use_water_switch) {
+      digitalWrite(kLedPin, missing_water);
     }
   } else {
-    // inside < set_temp
-    outputs.SetFan(0);
-    outputs.SetPump(0);
+    // Manual mode
+    if (use_water_switch && !inputs.GetWaterSwitch()) {
+    } else {
+      outputs.SetFan(fan_speed);
+      outputs.SetPump(pump_speed);
+    }
   }
-
-  invalid = new_invalid;
-
-  digitalWrite(kLedPin, missing_water);
 
   if (backlight_off_at && millis() > backlight_off_at) {
     // lcd.noBacklight();
