@@ -7,7 +7,8 @@
 
 enum class RunMode {
   AUTO,
-  MANUAL,
+  SWAMP,
+  VENT,
   OFF,
 };
 
@@ -32,7 +33,8 @@ class Runner {
 
   private:
   void RunAuto();
-  void RunManual();
+  void RunSwamp();
+  void RunVent();
   void RunOff();
 
   enum class OutputMode {

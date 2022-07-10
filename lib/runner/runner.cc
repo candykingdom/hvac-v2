@@ -11,8 +11,12 @@ void Runner::Tick() {
       RunAuto();
       break;
 
-    case RunMode::MANUAL:
-      RunManual();
+    case RunMode::SWAMP:
+      RunSwamp();
+      break;
+
+    case RunMode::VENT:
+      RunVent();
       break;
 
     case RunMode::OFF:
@@ -112,21 +116,30 @@ void Runner::RunAuto() {
   }
 }
 
-void Runner::RunManual() {
-  // Manual mode
-  if (params_.pump_speed > 0) {
+void Runner::RunSwamp() {
+  if (params_.pump_speed == 0) {
+    outputs_.SetLed(false);
+    outputs_.SetFan(0);
+    outputs_.SetPump(0);
+  } else {
     if (params_.use_water_switch && !inputs_.GetWaterSwitch()) {
+      outputs_.SetLed(true);
       outputs_.SetFan(0);
       outputs_.SetPump(0);
     } else {
+      outputs_.SetLed(false);
       outputs_.SetFan(params_.swamp_fan_speed);
       outputs_.SetPump(params_.pump_speed);
       outputs_.SetFanDirection(params_.swamp_direction);
     }
-  } else {
-    outputs_.SetFan(params_.vent_fan_speed);
-    outputs_.SetFanDirection(params_.vent_direction);
   }
+}
+
+void Runner::RunVent() {
+  outputs_.SetLed(false);
+  outputs_.SetFan(params_.vent_fan_speed);
+  outputs_.SetFanDirection(params_.vent_direction);
+  outputs_.SetPump(0);
 }
 
 void Runner::RunOff() {

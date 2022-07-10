@@ -99,17 +99,18 @@ MENU(sense_menu,"Sense",doNothing,noEvent,wrapStyle
 
 TOGGLE(runner_params.run_mode, mode_menu, "Mode:", doNothing, noEvent, wrapStyle
   ,VALUE("Auto", RunMode::AUTO, doNothing, noEvent)
-  ,VALUE("Manual", RunMode::MANUAL, doNothing, noEvent)
+  ,VALUE("Swamp", RunMode::SWAMP, doNothing, noEvent)
+  ,VALUE("Vent", RunMode::VENT, doNothing, noEvent)
   ,VALUE("Off", RunMode::OFF, doNothing, noEvent)
 );
 
 MENU(main_menu,"Main menu",doNothing,noEvent,wrapStyle
+  ,SUBMENU(mode_menu)
   ,FIELD(runner_params.set_temp, "Temp", "F", 30, 100, 10, 1, doNothing, noEvent, wrapStyle)
   ,FIELD(runner_params.swamp_fan_speed, "SwampFan", "", 0, 255, 25, 1, doNothing, updateEvent, wrapStyle)
   ,FIELD(runner_params.vent_fan_speed, "VentFan ", "", 0, 255, 25, 1, doNothing, updateEvent, wrapStyle)
   ,FIELD(runner_params.pump_speed, "Pump", "", 0, 255, 25, 1, doNothing, updateEvent, wrapStyle)
   ,FIELD(runner_params.swamp_threshold, "Swamp Thresh", "F", 30, 100, 10, 1, doNothing, noEvent, wrapStyle)
-  ,SUBMENU(mode_menu)
   ,SUBMENU(config_menu)
   ,SUBMENU(sense_menu)
   ,EXIT("...")
@@ -262,7 +263,9 @@ void loop() {
     lcd.setCursor(/*col=*/0, /*row=*/1);
     if (runner_params.run_mode == RunMode::OFF) {
       lcd.print("Off");
-} else if (runner_params.use_water_switch && !inputs.GetWaterSwitch()) {
+    } else if ((runner_params.run_mode == RunMode::AUTO ||
+                runner_params.run_mode == RunMode::SWAMP) &&
+               runner_params.use_water_switch && !inputs.GetWaterSwitch()) {
       lcd.print("No Water!");
     } else {
       lcd.print("Fan ");

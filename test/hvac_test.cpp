@@ -23,11 +23,11 @@ class HvacTest : public ::testing::Test {
 
 TEST_F(HvacTest, Initializes) { runner.Tick(); }
 
-TEST_F(HvacTest, ManualMode) {
+TEST_F(HvacTest, SwampMode) {
   constexpr uint8_t VENT = 100;
   constexpr uint8_t SWAMP = 200;
   constexpr uint8_t PUMP = 150;
-  runner_params.run_mode = RunMode::MANUAL;
+  runner_params.run_mode = RunMode::SWAMP;
   runner_params.vent_fan_speed = VENT;
   runner_params.swamp_fan_speed = SWAMP;
   runner_params.pump_speed = PUMP;
@@ -39,27 +39,50 @@ TEST_F(HvacTest, ManualMode) {
   EXPECT_EQ(SWAMP, outputs.GetFan());
   EXPECT_EQ(PUMP, outputs.GetPump());
   EXPECT_TRUE(outputs.GetFanDirection());
+  EXPECT_FALSE(outputs.GetLed());
 
   inputs.water_switch = true;
   runner.Tick();
   EXPECT_EQ(SWAMP, outputs.GetFan());
   EXPECT_EQ(PUMP, outputs.GetPump());
+  EXPECT_FALSE(outputs.GetLed());
 
   runner_params.use_water_switch = true;
   runner.Tick();
   EXPECT_EQ(SWAMP, outputs.GetFan());
   EXPECT_EQ(PUMP, outputs.GetPump());
+  EXPECT_FALSE(outputs.GetLed());
 
   inputs.water_switch = false;
   runner.Tick();
   EXPECT_EQ(0, outputs.GetFan());
   EXPECT_EQ(0, outputs.GetPump());
+  EXPECT_TRUE(outputs.GetLed());
 
   runner_params.pump_speed = 0;
+  runner.Tick();
+  EXPECT_EQ(0, outputs.GetFan());
+  EXPECT_EQ(0, outputs.GetPump());
+  EXPECT_FALSE(outputs.GetLed());
+}
+
+TEST_F(HvacTest, VentMode) {
+  constexpr uint8_t VENT = 100;
+  constexpr uint8_t SWAMP = 200;
+  constexpr uint8_t PUMP = 150;
+  runner_params.run_mode = RunMode::VENT;
+  runner_params.vent_fan_speed = VENT;
+  runner_params.swamp_fan_speed = SWAMP;
+  runner_params.pump_speed = PUMP;
+  runner_params.use_water_switch = false;
+  runner_params.swamp_direction = true;
+  runner_params.vent_direction = false;
+  inputs.water_switch = true;
   runner.Tick();
   EXPECT_EQ(VENT, outputs.GetFan());
   EXPECT_EQ(0, outputs.GetPump());
   EXPECT_FALSE(outputs.GetFanDirection());
+  EXPECT_FALSE(outputs.GetLed());
 }
 
 TEST_F(HvacTest, AutoModeOutsideAboveSwampThreshold) {
