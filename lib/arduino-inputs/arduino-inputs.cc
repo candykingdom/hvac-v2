@@ -44,6 +44,6 @@ uint16_t ArduinoInputs::GetBatteryMillivolts() {
   // Use 32 bits to avoid clipping during calculation
   uint32_t battery_raw = analogRead(kBatteryPin);
   // Voltage divider is 390k and 110k resistor, reference voltage is 3.3v, DAC
-  // precision is 12 bits -> 4096
-  return (uint16_t)(battery_raw * (390 + 110) * 3.3 * 1000 / 110 / 4096);
+  // precision is 10 bits -> 1024
+  return (uint16_t)(battery_raw * (390 + 110) * 3.3 * 1000 / 110 / 1024);
 }
