@@ -50,9 +50,23 @@ void Runner::RunAuto() {
     return;
   }
 
-  if (inside > params_.set_temp) {
-    if (outside > inside) {
-      if (outside > params_.swamp_threshold) {
+  // Hysteresis
+  float set_temp = params_.set_temp;
+  float swamp_threshold = params_.swamp_threshold;
+  if (output_mode_ == OutputMode::OFF) {
+    set_temp += kDeadBand;
+  } else if (output_mode_ == OutputMode::VENT) {
+    swamp_threshold += kDeadBand;
+  }
+
+  bool outside_warmer = outside > inside;
+  if (prev_outside_warmer_) {
+    outside_warmer = outside > (inside - kDeadBand);
+  }
+
+  if (inside > set_temp) {
+    if (outside_warmer) {
+      if (outside > swamp_threshold) {
         if (params_.use_water_switch) {
           if (inputs_.GetWaterSwitch()) {
             output_mode_ = OutputMode::SWAMP;
@@ -71,7 +85,7 @@ void Runner::RunAuto() {
       }
     } else {
       // outside < inside
-      if (outside > params_.swamp_threshold) {
+      if (outside > swamp_threshold) {
         if (params_.use_water_switch) {
           if (inputs_.GetWaterSwitch()) {
             output_mode_ = OutputMode::SWAMP;
@@ -112,6 +126,7 @@ void Runner::RunAuto() {
       outputs_.SetPump(0);
       break;
   }
+  prev_outside_warmer_ = outside_warmer;
 
   invalid_ = new_invalid;
 

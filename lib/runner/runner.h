@@ -26,10 +26,21 @@ struct RunnerParams {
 
 class Runner {
  public:
+  enum class OutputMode {
+    VENT,
+    SWAMP,
+    OFF,
+  };
+
   Runner(const RunnerParams& params, Inputs& inputs, Outputs& outputs);
 
   // Runs one cycle. Non-blocking. Call periodically.
   void Tick();
+
+  // For testing.
+  OutputMode GetOutputMode() { return output_mode_; }
+
+  static constexpr float kDeadBand = 2;
 
  private:
   void RunAuto();
@@ -37,16 +48,11 @@ class Runner {
   void RunVent();
   void RunOff();
 
-  enum class OutputMode {
-    VENT,
-    SWAMP,
-    OFF,
-  };
-
   const RunnerParams& params_;
   Inputs& inputs_;
   Outputs& outputs_;
 
   bool invalid_ = false;
   OutputMode output_mode_;
+  bool prev_outside_warmer_ = false;
 };
