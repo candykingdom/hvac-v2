@@ -13,9 +13,12 @@ class FakeInputs : public Inputs {
 
   bool GetWaterSwitch() override { return water_switch; }
 
+  uint16_t GetBatteryMillivolts() override { return battery_millivolts; };
+
   float outside = 0;
   float inside = 0;
   bool water_switch = true;
+  uint16_t battery_millivolts;
 };
 
 #endif  // FAKE_INPUTS_H_
