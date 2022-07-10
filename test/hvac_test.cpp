@@ -284,11 +284,11 @@ TEST_F(HvacTest, AutoModeVentHysteresis) {
   runner.Tick();
   EXPECT_EQ(OutputMode::OFF, runner.GetOutputMode());
 
-  inputs.outside = 90 - Runner::kDeadBand + 0.1;
+  inputs.outside = 90 - runner_params.temp_deadband + 0.1;
   runner.Tick();
   EXPECT_EQ(OutputMode::OFF, runner.GetOutputMode());
 
-  inputs.outside = 90 - Runner::kDeadBand - 0.1;
+  inputs.outside = 90 - runner_params.temp_deadband - 0.1;
   runner.Tick();
   EXPECT_EQ(OutputMode::VENT, runner.GetOutputMode());
 }
@@ -317,11 +317,11 @@ TEST_F(HvacTest, AutoModeSetTempHysteresis) {
   runner.Tick();
   EXPECT_EQ(OutputMode::OFF, runner.GetOutputMode());
 
-  inputs.inside = 60 + Runner::kDeadBand / 2;
+  inputs.inside = 60 + runner_params.temp_deadband / 2;
   runner.Tick();
   EXPECT_EQ(OutputMode::OFF, runner.GetOutputMode());
 
-  inputs.inside = 60 + Runner::kDeadBand + 0.1;
+  inputs.inside = 60 + runner_params.temp_deadband + 0.1;
   runner.Tick();
   EXPECT_EQ(OutputMode::VENT, runner.GetOutputMode());
 }
@@ -346,7 +346,7 @@ TEST_F(HvacTest, AutoModeSwampHysteresis) {
   runner.Tick();
   EXPECT_EQ(OutputMode::OFF, runner.GetOutputMode());
 
-  inputs.outside = 80 + Runner::kDeadBand / 2;
+  inputs.outside = 80 + runner_params.temp_deadband / 2;
   runner.Tick();
   EXPECT_EQ(OutputMode::SWAMP, runner.GetOutputMode());
 
@@ -356,12 +356,12 @@ TEST_F(HvacTest, AutoModeSwampHysteresis) {
   EXPECT_EQ(OutputMode::VENT, runner.GetOutputMode());
 
   inputs.inside = 100;
-  inputs.outside = 80 + Runner::kDeadBand / 2;
+  inputs.outside = 80 + runner_params.temp_deadband / 2;
   runner.Tick();
   EXPECT_EQ(OutputMode::VENT, runner.GetOutputMode());
 
   inputs.inside = 100;
-  inputs.outside = 80 + Runner::kDeadBand + 0.1;
+  inputs.outside = 80 + runner_params.temp_deadband + 0.1;
   runner.Tick();
   EXPECT_EQ(OutputMode::SWAMP, runner.GetOutputMode());
 }

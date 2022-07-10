@@ -54,14 +54,14 @@ void Runner::RunAuto() {
   float set_temp = params_.set_temp;
   float swamp_threshold = params_.swamp_threshold;
   if (output_mode_ == OutputMode::OFF) {
-    set_temp += kDeadBand;
+    set_temp += params_.temp_deadband;
   } else if (output_mode_ == OutputMode::VENT) {
-    swamp_threshold += kDeadBand;
+    swamp_threshold += params_.temp_deadband;
   }
 
   bool outside_warmer = outside > inside;
   if (prev_outside_warmer_) {
-    outside_warmer = outside > (inside - kDeadBand);
+    outside_warmer = outside > (inside - params_.temp_deadband);
   }
 
   if (inside > set_temp) {

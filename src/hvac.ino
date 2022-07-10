@@ -82,6 +82,7 @@ TOGGLE(runner_params.vent_direction, vent_direction_menu, "VentDir:", doNothing,
 );
 
 MENU(config_menu,"Config",doNothing,noEvent,wrapStyle
+  ,FIELD(runner_params.temp_deadband, "Temp Band", "F", 0, 20, 1, 0.1, doNothing, noEvent, wrapStyle)
   ,SUBMENU(water_switch_menu)
   ,SUBMENU(sound_on_menu)
   ,SUBMENU(swamp_direction_menu)

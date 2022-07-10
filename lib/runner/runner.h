@@ -15,6 +15,7 @@ enum class RunMode {
 struct RunnerParams {
   RunMode run_mode = RunMode::AUTO;
   bool use_water_switch = true;
+  float temp_deadband = 2;
   int8_t set_temp = 60;
   int8_t swamp_threshold = 70;
   uint8_t vent_fan_speed = 255;
