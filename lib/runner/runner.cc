@@ -27,7 +27,6 @@ void Runner::Tick() {
 
 void Runner::RunAuto() {
   bool missing_water = false;
-  // TODO: how should temp control behave when a temp is invalid?
   bool new_invalid = false;
   float inside = inputs_.GetInside();
   if (inside <= Inputs::kNoTemp) {
@@ -44,6 +43,11 @@ void Runner::RunAuto() {
     }
     invalid_ = true;
     new_invalid = true;
+  }
+  if (invalid_) {
+    outputs_.SetFan(0);
+    outputs_.SetPump(0);
+    return;
   }
 
   if (inside > params_.set_temp) {

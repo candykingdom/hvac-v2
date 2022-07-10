@@ -228,14 +228,14 @@ TEST_F(HvacTest, AutoModeInvalidTemps) {
 
   inputs.inside = 100;
   runner.Tick();
-  EXPECT_EQ(VENT, outputs.GetFan());
+  EXPECT_EQ(0, outputs.GetFan());
   EXPECT_EQ(0, outputs.GetPump());
 
   inputs.outside = 80;
   runner.Tick();
   inputs.outside = Inputs::kNoTemp - 1;
   runner.Tick();
-  EXPECT_EQ(VENT, outputs.GetFan());
+  EXPECT_EQ(0, outputs.GetFan());
   EXPECT_EQ(0, outputs.GetPump());
 }
 

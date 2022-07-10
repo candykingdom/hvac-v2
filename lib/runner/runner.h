@@ -25,13 +25,13 @@ struct RunnerParams {
 };
 
 class Runner {
-  public:
+ public:
   Runner(const RunnerParams& params, Inputs& inputs, Outputs& outputs);
 
   // Runs one cycle. Non-blocking. Call periodically.
   void Tick();
 
-  private:
+ private:
   void RunAuto();
   void RunSwamp();
   void RunVent();
