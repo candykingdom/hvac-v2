@@ -108,7 +108,7 @@ void Runner::Tick() {
       }
     } else {
       outputs_.SetFan(params_.vent_fan_speed);
-        outputs_.SetFanDirection(params_.vent_direction);
+      outputs_.SetFanDirection(params_.vent_direction);
     }
   }
 }

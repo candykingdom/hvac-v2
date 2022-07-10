@@ -259,34 +259,39 @@ void loop() {
     }
 
     lcd.setCursor(/*col=*/0, /*row=*/1);
-    lcd.print("Fan ");
-    uint8_t fan = outputs.GetFan();
-    if (fan == 255) {
-      lcd.print(" ON");
-    } else if (fan == 0) {
-      lcd.print("OFF");
+    if (runner_params.use_water_switch && !inputs.GetWaterSwitch()) {
+      lcd.print("No Water!");
     } else {
-      lcd.print(fan);
-    }
+      lcd.print("Fan ");
+      uint8_t fan = outputs.GetFan();
+      if (fan == 255) {
+        lcd.print(" ON");
+      } else if (fan == 0) {
+        lcd.print("OFF");
+      } else {
+        lcd.print(fan);
+      }
 
-    lcd.print(" Pump ");
-    uint8_t pump = outputs.GetPump();
-    if (pump == 255) {
-      lcd.print(" ON");
-    } else if (pump == 0) {
-      lcd.print("OFF");
-    } else {
-      lcd.print(pump);
+      lcd.print(" Pump ");
+      uint8_t pump = outputs.GetPump();
+      if (pump == 255) {
+        lcd.print(" ON");
+      } else if (pump == 0) {
+        lcd.print("OFF");
+      } else {
+        lcd.print(pump);
+      }
     }
 
     update_display_at = millis() + kUpdateTempMs;
   }
 
-
   if (backlight_off_at && millis() > backlight_off_at) {
     // lcd.noBacklight();
     backlight_off_at = 0;
   }
+
+  runner.Tick();
 
   fan_sense = analogRead(kFanSensePin);
   pump_sense = analogRead(kPumpSensePin);
