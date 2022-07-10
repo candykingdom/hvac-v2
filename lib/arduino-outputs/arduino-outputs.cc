@@ -22,9 +22,6 @@ bool ArduinoOutputs::Init() {
 
 void ArduinoOutputs::SetFan(uint8_t value) {
   Outputs::SetFan(value);
-  if (fan_type_ == FanType::PWM) {
-    analogWrite(kPwmSignalPin, value);
-  }
 }
 
 void ArduinoOutputs::SetFanDirection(bool direction) {
@@ -41,8 +38,13 @@ void ArduinoOutputs::SetLed(bool on) {
 }
 
 void ArduinoOutputs::Tick() {
+  Outputs::Tick();
+  if (fan_type_ == FanType::PWM) {
+    analogWrite(kPwmSignalPin, fan_actual_);
+  }
+
   if (pwm_counter_ == 0) {
-    if (fan_ > 0) {
+    if (fan_actual_ > 0) {
       switch (fan_type_) {
         case FanType::MOSFET:
           digitalWrite(kFanPin, HIGH);
@@ -61,7 +63,7 @@ void ArduinoOutputs::Tick() {
       digitalWrite(kPumpPin, HIGH);
     }
   }
-  if (fan_ != 255 && pwm_counter_ == fan_ + 1) {
+  if (fan_actual_ != 255 && pwm_counter_ == fan_actual_ + 1) {
     switch (fan_type_) {
       case FanType::MOSFET:
         digitalWrite(kFanPin, LOW);

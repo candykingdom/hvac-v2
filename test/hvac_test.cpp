@@ -5,8 +5,12 @@
 #include "runner.h"
 
 bool warning_ = false;
-
 void Warning() { warning_ = true; }
+
+static uint32_t millis_ = 0;
+extern uint32_t millis() {
+  return millis_;
+}
 
 class HvacTest : public ::testing::Test {
  protected:
@@ -249,6 +253,33 @@ TEST_F(HvacTest, OffMode) {
   runner.Tick();
   EXPECT_EQ(0, outputs.GetFan());
   EXPECT_EQ(0, outputs.GetPump());
+}
+
+TEST(OutputsTest, FanRamp) {
+  FakeOutputs outputs = FakeOutputs(FanType::BRIDGE);
+  ASSERT_EQ(0, outputs.GetFan());
+  ASSERT_EQ(0, outputs.GetFanActual());
+  outputs.Tick();
+  ASSERT_EQ(0, outputs.GetFan());
+  ASSERT_EQ(0, outputs.GetFanActual());
+
+  outputs.SetFan(255);
+  for (uint32_t step = 0; step <= 255; ++step) {
+    outputs.Tick();
+    ASSERT_EQ(255, outputs.GetFan());
+    EXPECT_EQ(step, outputs.GetFanActual());
+    
+    millis_ += Outputs::kFanUpdateMs;
+  }
+
+  outputs.SetFan(0);
+  for (int32_t step = 254; step >= 0; --step) {
+    outputs.Tick();
+    ASSERT_EQ(0, outputs.GetFan());
+    EXPECT_EQ(step, outputs.GetFanActual());
+    
+    millis_ += Outputs::kFanUpdateMs;
+  }
 }
 
 int main(int argc, char **argv) {

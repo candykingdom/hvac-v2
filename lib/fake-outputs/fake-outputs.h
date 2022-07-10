@@ -10,8 +10,8 @@ class FakeOutputs : public Outputs {
   bool Init() override;
   void SetFan(uint8_t value) override;
   void SetPump(uint8_t value) override;
-  void Tick() override {}
   bool GetFanDirection() { return fan_direction_; }
+  uint8_t GetFanActual() { return fan_actual_; }
 };
 
 #endif  // FAKE_OUTPUTS_H_

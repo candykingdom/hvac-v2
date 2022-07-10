@@ -3,7 +3,7 @@
 bool FakeOutputs::Init() { return true; }
 
 void FakeOutputs::SetFan(uint8_t value) {
-  bool changed = value != fan_;
+  bool changed = value != fan_target_;
   Outputs::SetFan(value);
 }
 

@@ -1,5 +1,4 @@
-#ifndef OUTPUTS_H_
-#define OUTPUTS_H_
+#pragma once
 
 #include <cstdint>
 
@@ -15,9 +14,9 @@ class Outputs {
 
   virtual bool Init() = 0;
 
-  virtual void SetFan(uint8_t value) { fan_ = value; }
+  virtual void SetFan(uint8_t value);
 
-  uint8_t GetFan() { return fan_; }
+  uint8_t GetFan() { return fan_target_; }
 
   virtual void SetFanDirection(bool direction) { fan_direction_ = direction; }
 
@@ -30,15 +29,18 @@ class Outputs {
   bool GetLed() { return led_; }
 
   // Updates MOSFET/Bridge outputs. Call at 50Hz * 256.
-  virtual void Tick() = 0;
+  virtual void Tick();
+
+  static constexpr uint32_t kFanUpdateMs = 1;
 
  protected:
-  uint8_t fan_;
+  uint8_t fan_target_ = 0;
+  uint8_t fan_actual_  = 0;
+  uint32_t fan_last_update_ = 0;
+
   bool fan_direction_ = true;
-  uint8_t pump_;
+  uint8_t pump_ = 0;
   bool led_ = false;
 
   const FanType fan_type_;
 };
-
-#endif  // OUTPUTS_H_
