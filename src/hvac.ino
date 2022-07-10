@@ -97,9 +97,10 @@ MENU(sense_menu,"Sense",doNothing,noEvent,wrapStyle
   ,EXIT("...")
 );
 
-TOGGLE(runner_params.mode_auto, mode_menu, "Mode:", doNothing, noEvent, wrapStyle
-  ,VALUE("Auto", true, doNothing, noEvent)
-  ,VALUE("Manual", false, doNothing, noEvent)
+TOGGLE(runner_params.run_mode, mode_menu, "Mode:", doNothing, noEvent, wrapStyle
+  ,VALUE("Auto", RunMode::AUTO, doNothing, noEvent)
+  ,VALUE("Manual", RunMode::MANUAL, doNothing, noEvent)
+  ,VALUE("Off", RunMode::OFF, doNothing, noEvent)
 );
 
 MENU(main_menu,"Main menu",doNothing,noEvent,wrapStyle
@@ -259,7 +260,9 @@ void loop() {
     }
 
     lcd.setCursor(/*col=*/0, /*row=*/1);
-    if (runner_params.use_water_switch && !inputs.GetWaterSwitch()) {
+    if (runner_params.run_mode == RunMode::OFF) {
+      lcd.print("Off");
+} else if (runner_params.use_water_switch && !inputs.GetWaterSwitch()) {
       lcd.print("No Water!");
     } else {
       lcd.print("Fan ");

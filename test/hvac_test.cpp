@@ -27,7 +27,7 @@ TEST_F(HvacTest, ManualMode) {
   constexpr uint8_t VENT = 100;
   constexpr uint8_t SWAMP = 200;
   constexpr uint8_t PUMP = 150;
-  runner_params.mode_auto = false;
+  runner_params.run_mode = RunMode::MANUAL;
   runner_params.vent_fan_speed = VENT;
   runner_params.swamp_fan_speed = SWAMP;
   runner_params.pump_speed = PUMP;
@@ -66,7 +66,7 @@ TEST_F(HvacTest, AutoModeOutsideAboveSwampThreshold) {
   constexpr uint8_t VENT = 100;
   constexpr uint8_t SWAMP = 200;
   constexpr uint8_t PUMP = 150;
-  runner_params.mode_auto = true;
+  runner_params.run_mode = RunMode::AUTO;
   runner_params.vent_fan_speed = VENT;
   runner_params.swamp_fan_speed = SWAMP;
   runner_params.pump_speed = PUMP;
@@ -134,7 +134,7 @@ TEST_F(HvacTest, AutoModeOutsideBelowSwampThreshold) {
   constexpr uint8_t VENT = 100;
   constexpr uint8_t SWAMP = 200;
   constexpr uint8_t PUMP = 150;
-  runner_params.mode_auto = true;
+  runner_params.run_mode = RunMode::AUTO;
   runner_params.vent_fan_speed = VENT;
   runner_params.swamp_fan_speed = SWAMP;
   runner_params.pump_speed = PUMP;
@@ -184,7 +184,7 @@ TEST_F(HvacTest, AutoModeInvalidTemps) {
   constexpr uint8_t VENT = 100;
   constexpr uint8_t SWAMP = 200;
   constexpr uint8_t PUMP = 150;
-  runner_params.mode_auto = true;
+  runner_params.run_mode = RunMode::AUTO;
   runner_params.vent_fan_speed = VENT;
   runner_params.swamp_fan_speed = SWAMP;
   runner_params.pump_speed = PUMP;
@@ -213,6 +213,18 @@ TEST_F(HvacTest, AutoModeInvalidTemps) {
   inputs.outside = Inputs::kNoTemp - 1;
   runner.Tick();
   EXPECT_EQ(VENT, outputs.GetFan());
+  EXPECT_EQ(0, outputs.GetPump());
+}
+
+TEST_F(HvacTest, OffMode) {
+  runner_params.run_mode = RunMode::OFF;
+  runner_params.vent_fan_speed = 100;
+  runner_params.swamp_fan_speed = 200;
+  runner_params.pump_speed = 150;
+  runner_params.use_water_switch = false;
+  inputs.water_switch = true;
+  runner.Tick();
+  EXPECT_EQ(0, outputs.GetFan());
   EXPECT_EQ(0, outputs.GetPump());
 }
 

@@ -5,8 +5,14 @@
 #include "inputs.h"
 #include "outputs.h"
 
+enum class RunMode {
+  AUTO,
+  MANUAL,
+  OFF,
+};
+
 struct RunnerParams {
-  bool mode_auto = true;
+  RunMode run_mode = RunMode::AUTO;
   bool use_water_switch = true;
   int8_t set_temp = 60;
   int8_t swamp_threshold = 70;
@@ -25,6 +31,10 @@ class Runner {
   void Tick();
 
   private:
+  void RunAuto();
+  void RunManual();
+  void RunOff();
+
   enum class OutputMode {
     VENT,
     SWAMP,
