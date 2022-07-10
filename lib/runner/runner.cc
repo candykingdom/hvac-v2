@@ -1,5 +1,4 @@
 #include "runner.h"
-#include <iostream>
 
 extern void Warning();
 
