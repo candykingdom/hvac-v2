@@ -1,4 +1,5 @@
 #include "runner.h"
+#include <iostream>
 
 extern void Warning();
 
@@ -81,7 +82,10 @@ void Runner::Tick() {
     }
   } else {
     // Manual mode
-    if (params_.use_water_switch && !inputs_.GetWaterSwitch()) {
+    if (params_.use_water_switch && !inputs_.GetWaterSwitch() &&
+        params_.pump_speed > 0) {
+      outputs_.SetFan(0);
+      outputs_.SetPump(0);
     } else {
       outputs_.SetFan(params_.fan_speed);
       outputs_.SetPump(params_.pump_speed);

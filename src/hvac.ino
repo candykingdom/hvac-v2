@@ -40,7 +40,7 @@ uint32_t backlight_off_at = 0;
 const constexpr int kMaxDepth = 4;
 
 ArduinoInputs inputs;
-ArduinoOutputs outputs;
+ArduinoOutputs outputs(FanType::BRIDGE);
 
 RunnerParams runner_params;
 Runner runner(runner_params, inputs, outputs);

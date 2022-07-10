@@ -11,6 +11,8 @@ enum class FanType {
 
 class Outputs {
  public:
+  Outputs(FanType fan_type) : fan_type_(fan_type) {}
+
   virtual bool Init() = 0;
 
   virtual void SetFan(uint8_t value) { fan_ = value; }
@@ -36,7 +38,7 @@ class Outputs {
   uint8_t pump_;
   bool led_ = false;
 
-  static constexpr FanType fan_type_ = FanType::BRIDGE;
+  const FanType fan_type_;
 };
 
 #endif  // OUTPUTS_H_
