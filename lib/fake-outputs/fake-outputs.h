@@ -11,6 +11,7 @@ class FakeOutputs : public Outputs {
   void SetFan(uint8_t value) override;
   void SetPump(uint8_t value) override;
   void Tick() override {}
+  bool GetFanDirection() { return fan_direction_; }
 };
 
 #endif  // FAKE_OUTPUTS_H_

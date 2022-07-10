@@ -32,46 +32,62 @@ void Runner::Tick() {
         if (outside > params_.swamp_threshold) {
           if (params_.use_water_switch) {
             if (inputs_.GetWaterSwitch()) {
-              outputs_.SetPump(params_.pump_speed);
-              outputs_.SetFan(params_.fan_speed);
+              output_mode_ = OutputMode::SWAMP;
             } else {
               // Swamp is requested, but not available.
-              outputs_.SetFan(0);
-              outputs_.SetPump(0);
+              output_mode_ = OutputMode::OFF;
               missing_water = true;
             }
           } else {
             // No water switch
-            outputs_.SetPump(params_.pump_speed);
-            outputs_.SetFan(params_.fan_speed);
+            output_mode_ = OutputMode::SWAMP;
           }
         } else {
           // outside < swamp_threshold
-          outputs_.SetFan(0);
-          outputs_.SetPump(0);
+          output_mode_ = OutputMode::OFF;
         }
       } else {
         // outside < inside
-        outputs_.SetFan(params_.fan_speed);
         if (outside > params_.swamp_threshold) {
           if (params_.use_water_switch) {
             if (inputs_.GetWaterSwitch()) {
-              outputs_.SetPump(params_.pump_speed);
+              output_mode_ = OutputMode::SWAMP;
             } else {
               // Swamp is requested, but not available.
               missing_water = true;
-              outputs_.SetPump(0);
+              output_mode_ = OutputMode::VENT;
             }
           } else {
             // No water switch
-            outputs_.SetPump(params_.pump_speed);
+            output_mode_ = OutputMode::SWAMP;
           }
+        } else {
+          // outside < params.swamp_threshold
+          output_mode_ = OutputMode::VENT;
         }
       }
     } else {
       // inside < set_temp
-      outputs_.SetFan(0);
-      outputs_.SetPump(0);
+      output_mode_ = OutputMode::OFF;
+    }
+
+    switch (output_mode_) {
+      case OutputMode::VENT:
+        outputs_.SetFanDirection(params_.vent_direction);
+        outputs_.SetFan(params_.vent_fan_speed);
+        outputs_.SetPump(0);
+        break;
+
+      case OutputMode::SWAMP:
+        outputs_.SetFanDirection(params_.swamp_direction);
+        outputs_.SetFan(params_.swamp_fan_speed);
+        outputs_.SetPump(params_.pump_speed);
+        break;
+
+      case OutputMode::OFF:
+        outputs_.SetFan(0);
+        outputs_.SetPump(0);
+        break;
     }
 
     invalid_ = new_invalid;
@@ -81,13 +97,18 @@ void Runner::Tick() {
     }
   } else {
     // Manual mode
-    if (params_.use_water_switch && !inputs_.GetWaterSwitch() &&
-        params_.pump_speed > 0) {
-      outputs_.SetFan(0);
-      outputs_.SetPump(0);
+    if (params_.pump_speed > 0) {
+      if (params_.use_water_switch && !inputs_.GetWaterSwitch()) {
+        outputs_.SetFan(0);
+        outputs_.SetPump(0);
+      } else {
+        outputs_.SetFan(params_.swamp_fan_speed);
+        outputs_.SetPump(params_.pump_speed);
+        outputs_.SetFanDirection(params_.swamp_direction);
+      }
     } else {
-      outputs_.SetFan(params_.fan_speed);
-      outputs_.SetPump(params_.pump_speed);
+      outputs_.SetFan(params_.vent_fan_speed);
+        outputs_.SetFanDirection(params_.vent_direction);
     }
   }
 }

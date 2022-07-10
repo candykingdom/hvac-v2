@@ -39,8 +39,9 @@ uint32_t backlight_off_at = 0;
 
 const constexpr int kMaxDepth = 4;
 
+constexpr FanType kFanType = FanType::BRIDGE;
 ArduinoInputs inputs;
-ArduinoOutputs outputs(FanType::BRIDGE);
+ArduinoOutputs outputs(kFanType);
 
 RunnerParams runner_params;
 Runner runner(runner_params, inputs, outputs);
@@ -70,9 +71,21 @@ TOGGLE(runner_params.use_water_switch, water_switch_menu, "WaterSwitch:", doNoth
   ,VALUE(" No", false, doNothing, noEvent)
 );
 
+TOGGLE(runner_params.swamp_direction, swamp_direction_menu, "SwampDir:", doNothing, noEvent, wrapStyle
+  ,VALUE("Forw", true, doNothing, noEvent)
+  ,VALUE("Back", false, doNothing, noEvent)
+);
+
+TOGGLE(runner_params.vent_direction, vent_direction_menu, "VentDir:", doNothing, noEvent, wrapStyle
+  ,VALUE("Forw", true, doNothing, noEvent)
+  ,VALUE("Back", false, doNothing, noEvent)
+);
+
 MENU(config_menu,"Config",doNothing,noEvent,wrapStyle
   ,SUBMENU(water_switch_menu)
   ,SUBMENU(sound_on_menu)
+  ,SUBMENU(swamp_direction_menu)
+  ,SUBMENU(vent_direction_menu)
   ,EXIT("...")
 );
 
@@ -91,7 +104,8 @@ TOGGLE(runner_params.mode_auto, mode_menu, "Mode:", doNothing, noEvent, wrapStyl
 
 MENU(main_menu,"Main menu",doNothing,noEvent,wrapStyle
   ,FIELD(runner_params.set_temp, "Temp", "F", 30, 100, 10, 1, doNothing, noEvent, wrapStyle)
-  ,FIELD(runner_params.fan_speed, "Fan", "", 0, 255, 25, 1, doNothing, updateEvent, wrapStyle)
+  ,FIELD(runner_params.swamp_fan_speed, "SwampFan", "", 0, 255, 25, 1, doNothing, updateEvent, wrapStyle)
+  ,FIELD(runner_params.vent_fan_speed, "VentFan ", "", 0, 255, 25, 1, doNothing, updateEvent, wrapStyle)
   ,FIELD(runner_params.pump_speed, "Pump", "", 0, 255, 25, 1, doNothing, updateEvent, wrapStyle)
   ,FIELD(runner_params.swamp_threshold, "Swamp Thresh", "F", 30, 100, 10, 1, doNothing, noEvent, wrapStyle)
   ,SUBMENU(mode_menu)
