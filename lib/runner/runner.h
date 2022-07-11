@@ -23,6 +23,8 @@ struct RunnerParams {
   bool vent_direction = true;
   bool swamp_direction = true;
   uint8_t pump_speed = 255;
+  uint16_t pump_period = 60;
+  uint8_t pump_duty = 255;
 };
 
 class Runner {
@@ -41,13 +43,13 @@ class Runner {
   // For testing.
   OutputMode GetOutputMode() { return output_mode_; }
 
-  static constexpr float kDeadBand = 2;
-
  private:
   void RunAuto();
   void RunSwamp();
   void RunVent();
   void RunOff();
+
+  void SetPump();
 
   const RunnerParams& params_;
   Inputs& inputs_;

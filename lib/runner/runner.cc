@@ -1,5 +1,7 @@
 #include "runner.h"
 
+#include "types.h"
+
 extern void Warning();
 
 Runner::Runner(const RunnerParams& params, Inputs& inputs, Outputs& outputs)
@@ -118,7 +120,7 @@ void Runner::RunAuto() {
     case OutputMode::SWAMP:
       outputs_.SetFanDirection(params_.swamp_direction);
       outputs_.SetFan(params_.swamp_fan_speed);
-      outputs_.SetPump(params_.pump_speed);
+      SetPump();
       break;
 
     case OutputMode::OFF:
@@ -148,8 +150,8 @@ void Runner::RunSwamp() {
     } else {
       outputs_.SetLed(false);
       outputs_.SetFan(params_.swamp_fan_speed);
-      outputs_.SetPump(params_.pump_speed);
       outputs_.SetFanDirection(params_.swamp_direction);
+      SetPump();
     }
   }
 }
@@ -164,4 +166,16 @@ void Runner::RunVent() {
 void Runner::RunOff() {
   outputs_.SetFan(0);
   outputs_.SetPump(0);
+}
+
+void Runner::SetPump() {
+  if (params_.pump_duty == 255) {
+    outputs_.SetPump(params_.pump_speed);
+  } else {
+    // Note: dividing by 256 is more efficient, but less correct.
+    uint32_t period_millis = params_.pump_period * 1000;
+    uint32_t turn = (period_millis * params_.pump_duty) / 256;
+    outputs_.SetPump((millis() % period_millis) >= turn ? 0
+                                                        : params_.pump_speed);
+  }
 }

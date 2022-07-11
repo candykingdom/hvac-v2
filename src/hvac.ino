@@ -84,9 +84,11 @@ TOGGLE(runner_params.vent_direction, vent_direction_menu, "VentDir:", doNothing,
 MENU(config_menu,"Config",doNothing,noEvent,wrapStyle
   ,FIELD(runner_params.temp_deadband, "Temp Band", "F", 0, 20, 1, 0.1, doNothing, noEvent, wrapStyle)
   ,SUBMENU(water_switch_menu)
-  ,SUBMENU(sound_on_menu)
+  ,FIELD(runner_params.pump_period, "Pump Cycle", "S", 0, 999, 60, 5, doNothing, noEvent, wrapStyle)
+  ,FIELD(runner_params.pump_duty, "Pump Duty", "", 0, 255, 25, 1, doNothing, noEvent, wrapStyle)
   ,SUBMENU(swamp_direction_menu)
   ,SUBMENU(vent_direction_menu)
+  ,SUBMENU(sound_on_menu)
   ,EXIT("...")
 );
 

@@ -3,6 +3,7 @@
 #include "fake-inputs.h"
 #include "fake-outputs.h"
 #include "runner.h"
+#include "types.h"
 
 using OutputMode = Runner::OutputMode;
 
@@ -26,9 +27,6 @@ std::ostream &operator<<(std::ostream &out, OutputMode mode) {
 bool warning_ = false;
 void Warning() { warning_ = true; }
 
-static uint32_t millis_ = 0;
-extern uint32_t millis() { return millis_; }
-
 class HvacTest : public ::testing::Test {
  protected:
   RunnerParams runner_params;
@@ -37,6 +35,7 @@ class HvacTest : public ::testing::Test {
   Runner runner = Runner(runner_params, inputs, outputs);
 
   void SetUp() override {
+    SetMillis(0);
     ASSERT_TRUE(inputs.Init());
     ASSERT_TRUE(outputs.Init());
   }
@@ -85,6 +84,50 @@ TEST_F(HvacTest, SwampMode) {
   EXPECT_EQ(0, outputs.GetFan());
   EXPECT_EQ(0, outputs.GetPump());
   EXPECT_FALSE(outputs.GetLed());
+}
+
+TEST_F(HvacTest, PumpDuty) {
+  constexpr uint8_t PUMP = 150;
+  runner_params.run_mode = RunMode::SWAMP;
+  runner_params.swamp_fan_speed = 200;
+  runner_params.pump_speed = PUMP;
+  runner_params.use_water_switch = false;
+
+  for (uint32_t step = 0; step < 120; step++) {
+    AdvanceMillis(1000);
+    runner.Tick();
+    ASSERT_EQ(PUMP, outputs.GetPump());
+  }
+
+  SetMillis(0);
+  runner.Tick();
+  runner_params.pump_period = 60;
+  runner_params.pump_duty = 128;
+  uint32_t cycles_on = 0;
+  uint32_t total_cycles = 0;
+  for (uint32_t step = 0; step < 60 * 10; ++step) {
+    AdvanceMillis(1000);
+    runner.Tick();
+    total_cycles++;
+    if (outputs.GetPump() > 0) {
+      cycles_on++;
+    }
+  }
+  EXPECT_EQ(total_cycles, cycles_on * 2);
+
+  runner_params.pump_period = 60;
+  runner_params.pump_duty = 64;
+  cycles_on = 0;
+  total_cycles = 0;
+  for (uint32_t step = 0; step < 60 * 10; ++step) {
+    AdvanceMillis(1000);
+    runner.Tick();
+    total_cycles++;
+    if (outputs.GetPump() > 0) {
+      cycles_on++;
+    }
+  }
+  EXPECT_EQ(total_cycles, cycles_on * 4);
 }
 
 TEST_F(HvacTest, VentMode) {
@@ -379,6 +422,7 @@ TEST_F(HvacTest, OffMode) {
 }
 
 TEST(OutputsTest, FanRamp) {
+  SetMillis(0);
   FakeOutputs outputs = FakeOutputs(FanType::BRIDGE);
   ASSERT_EQ(0, outputs.GetFan());
   ASSERT_EQ(0, outputs.GetFanActual());
@@ -390,9 +434,9 @@ TEST(OutputsTest, FanRamp) {
   for (uint32_t step = 0; step <= 255; ++step) {
     outputs.Tick();
     ASSERT_EQ(255, outputs.GetFan());
-    EXPECT_EQ(step, outputs.GetFanActual());
+    ASSERT_EQ(step, outputs.GetFanActual());
 
-    millis_ += Outputs::kFanUpdateMs;
+    AdvanceMillis(Outputs::kFanUpdateMs);
   }
 
   outputs.SetFan(0);
@@ -401,7 +445,7 @@ TEST(OutputsTest, FanRamp) {
     ASSERT_EQ(0, outputs.GetFan());
     EXPECT_EQ(step, outputs.GetFanActual());
 
-    millis_ += Outputs::kFanUpdateMs;
+    AdvanceMillis(Outputs::kFanUpdateMs);
   }
 }
 

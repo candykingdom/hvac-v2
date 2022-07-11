@@ -1,10 +1,5 @@
 #include "outputs.h"
-
-#ifdef ARDUINO
-#include <Arduino.h>
-#else
-extern uint32_t millis();
-#endif
+#include "types.h"
 
 void Outputs::SetFan(uint8_t value) {
   fan_target_ = value;
