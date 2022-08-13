@@ -22,7 +22,8 @@ constexpr int kBuzzerPin = PB1;
 constexpr int kEncAPin = PB14;
 constexpr int kEncBPin = PB15;
 // TODO: switch to actual encoder button once its connected to the micro
-constexpr int kEncButtonPin = PB11;
+// constexpr int kEncButtonPin = PB11; // v2.3 with hotfix
+constexpr int kEncButtonPin = PA4;  // v2.4
 
 constexpr int kFanSensePin = PA6;
 constexpr int kPumpSensePin = PA1;
@@ -39,7 +40,7 @@ uint32_t backlight_off_at = 0;
 
 const constexpr int kMaxDepth = 4;
 
-constexpr FanType kFanType = FanType::BRIDGE;
+constexpr FanType kFanType = FanType::MOSFET;
 ArduinoInputs inputs;
 ArduinoOutputs outputs(kFanType);
 
@@ -55,7 +56,6 @@ uint16_t bridge_sense_n = 0;
 uint16_t bridge_sense_p = 0;
 
 LiquidCrystal_I2C lcd(/*address=*/0x27, /*columns=*/16, /*rows=*/2);
-// TODO: update button to use the encoder button
 ClickEncoder clickEncoder(kEncAPin, kEncBPin, kEncButtonPin,
                           /*stepsPerNotch=*/4);
 ClickEncoderStream encStream(clickEncoder, 1);
@@ -127,7 +127,6 @@ Menu::navNode *nodes[sizeof(panels) / sizeof(Menu::panel)];
 Menu::panelsList pList(panels, nodes, 1);
 
 Menu::idx_t serialTops[kMaxDepth];
-// Menu::serialOut outSerial(Serial, serialTops);
 Menu::liquidCrystalOut outLCD(lcd, serialTops, pList);
 
 Menu::menuOut *menu_outputs[] MEMMODE = {&outLCD};
@@ -148,9 +147,9 @@ void TimerHandler() {
 }
 
 void ServiceEncoder() {
-  // digitalWrite(kLedPin, HIGH);
+  // outputs.SetLed(true);
   clickEncoder.service();
-  // digitalWrite(kLedPin, LOW);
+  // outputs.SetLed(false);
 }
 
 result idle(menuOut &o, idleEvent e) {
@@ -218,9 +217,6 @@ void setup() {
     Serial.println("inputs.Init() failed");
     Warning();
   }
-  Serial.begin(9600);
-  while (!Serial)
-    ;
   nav.timeOut = 10;
   nav.idleTask = idle;
   nav.useUpdateEvent = true;
@@ -296,7 +292,7 @@ void loop() {
   }
 
   if (backlight_off_at && millis() > backlight_off_at) {
-    // lcd.noBacklight();
+    lcd.noBacklight();
     backlight_off_at = 0;
   }
 
