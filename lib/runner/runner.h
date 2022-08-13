@@ -13,6 +13,8 @@ enum class RunMode {
 };
 
 struct RunnerParams {
+  static constexpr uint32_t kValid = 0xDEADBEEF;
+
   RunMode run_mode = RunMode::AUTO;
   bool use_water_switch = true;
   float temp_deadband = 2;
@@ -26,6 +28,26 @@ struct RunnerParams {
   uint16_t pump_period = 60;
   uint8_t pump_duty = 255;
   bool sound_on = true;
+
+  // This should always be last, so that if we add a field, we'll update the stored defaults
+  uint32_t valid = kValid;
+
+  void SetDefaults() {
+    run_mode = RunMode::AUTO;
+    use_water_switch = true;
+    temp_deadband = 2;
+    set_temp = 60;
+    swamp_threshold = 70;
+    vent_fan_speed = 255;
+    swamp_fan_speed = 255;
+    vent_direction = true;
+    swamp_direction = true;
+    pump_speed = 255;
+    pump_period = 60;
+    pump_duty = 255;
+    sound_on = true;
+    valid = kValid;
+  }
 };
 
 class Runner {

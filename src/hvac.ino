@@ -200,6 +200,15 @@ void Warning() {
 }
 
 void setup() {
+  // If the flash storage has been written before, load config from it.
+  // Note: this seems to return true always, so we double-check using `runner_params.valid`.
+  if (EEPROM.isValid()) {
+    EEPROM.get(0, runner_params);
+  }
+  if (runner_params.valid != RunnerParams::kValid) {
+    runner_params.SetDefaults();
+  }
+  
   if (!outputs.Init()) {
     Serial.println("outputs.Init() failed");
     Warning();
@@ -241,12 +250,6 @@ void setup() {
   sense_menu[1].disable();
   sense_menu[2].disable();
   sense_menu[3].disable();
-
-  // If the flash storage has been written before, load config from it.
-  // Note: this seems to return true always, so we need to initialize the flash storage with valid data.
-  if (EEPROM.isValid()) {
-    EEPROM.get(0, runner_params);
-  }
 }
 
 void loop() {
