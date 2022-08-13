@@ -25,6 +25,7 @@ struct RunnerParams {
   uint8_t pump_speed = 255;
   uint16_t pump_period = 60;
   uint8_t pump_duty = 255;
+  bool sound_on = true;
 };
 
 class Runner {

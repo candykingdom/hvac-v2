@@ -9,6 +9,7 @@
 #include <menuIO/liquidCrystalOutI2C.h>
 #include <menuIO/serialIn.h>
 #include <menuIO/serialOut.h>
+#include <FlashStorage_STM32.h>
 
 #include "arduino-inputs.h"
 #include "arduino-outputs.h"
@@ -32,7 +33,7 @@ constexpr int kBridgeSensePPin = PA2;
 
 // Tuning constants
 constexpr uint16_t kUpdateTempMs = 1000;
-constexpr uint32_t kIdleBacklightOffMs = 5000;
+constexpr uint32_t kIdleBacklightOffMs = 30 * 1000;
 
 // State
 uint32_t update_display_at = 0;
@@ -47,9 +48,6 @@ ArduinoOutputs outputs(kFanType);
 RunnerParams runner_params;
 Runner runner(runner_params, inputs, outputs);
 
-// Config options
-bool sound_on = true;
-
 uint16_t fan_sense = 0;
 uint16_t pump_sense = 0;
 uint16_t bridge_sense_n = 0;
@@ -60,8 +58,12 @@ ClickEncoder clickEncoder(kEncAPin, kEncBPin, kEncButtonPin,
                           /*stepsPerNotch=*/4);
 ClickEncoderStream encStream(clickEncoder, 1);
 
+void SaveConfig() {
+  EEPROM.put(0, runner_params);
+}
+
 // clang-format off
-TOGGLE(sound_on, sound_on_menu, "Sound:", doNothing, noEvent, wrapStyle
+TOGGLE(runner_params.sound_on, sound_on_menu, "Sound:", doNothing, noEvent, wrapStyle
   ,VALUE("On", true, doNothing, noEvent)
   ,VALUE("Off", false, doNothing, noEvent)
 );
@@ -116,6 +118,7 @@ MENU(main_menu,"Main menu",doNothing,noEvent,wrapStyle
   ,FIELD(runner_params.swamp_threshold, "Swamp Thresh", "F", 30, 100, 10, 1, doNothing, noEvent, wrapStyle)
   ,SUBMENU(config_menu)
   ,SUBMENU(sense_menu)
+  ,OP("Save", SaveConfig, enterEvent)
   ,EXIT("...")
 );
 
@@ -174,7 +177,7 @@ result idle(menuOut &o, idleEvent e) {
 // In case of non-recoverable error, fast-blink the LED
 void FatalError() {
   bool on = true;
-  if (sound_on) {
+  if (runner_params.sound_on) {
     tone(kBuzzerPin, 4000, 100);
   }
   while (true) {
@@ -188,7 +191,7 @@ void Warning() {
   bool on = true;
   for (int i = 0; i < 4; i++) {
     outputs.SetLed(on);
-    if (on && sound_on) {
+    if (on && runner_params.sound_on) {
       tone(kBuzzerPin, 4000, 500);
     }
     on = !on;
@@ -238,6 +241,12 @@ void setup() {
   sense_menu[1].disable();
   sense_menu[2].disable();
   sense_menu[3].disable();
+
+  // If the flash storage has been written before, load config from it.
+  // Note: this seems to return true always, so we need to initialize the flash storage with valid data.
+  if (EEPROM.isValid()) {
+    EEPROM.get(0, runner_params);
+  }
 }
 
 void loop() {
