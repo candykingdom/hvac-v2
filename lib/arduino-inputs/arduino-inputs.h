@@ -1,7 +1,7 @@
 #ifndef ARDUINO_INPUTS_H_
 #define ARDUINO_INPUTS_H_
 
-#include <DS18B20.h>
+#include <DallasTemperature.h>
 #include <exponential-moving-average-filter.h>
 #include <median-filter.h>
 
@@ -23,8 +23,14 @@ class ArduinoInputs : public Inputs {
   static constexpr int kWaterSwitchPin = PB10;
   static constexpr int kBatteryPin = PA0;
 
-  DS18B20 inside = DS18B20(kInsidePin);
-  DS18B20 outside = DS18B20(kOutsidePin);
+  OneWire insideBus = OneWire(kInsidePin);
+  OneWire outsideBus = OneWire(kOutsidePin);
+  DallasTemperature inside = DallasTemperature(&insideBus);
+  DallasTemperature outside = DallasTemperature(&outsideBus);
+  DeviceAddress insideAddress = {0};
+  DeviceAddress outsideAddress = {0};
+  int32_t prev_outside_ = 0;
+  int32_t prev_inside_ = 0;
 
   MedianFilter<uint16_t, uint16_t, 5> battery_median_filter_;
   ExponentialMovingAverageFilter<uint16_t> battery_average_filter_;

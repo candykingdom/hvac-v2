@@ -316,5 +316,4 @@ void loop() {
   bridge_sense_p = analogRead(kBridgeSensePPin);
 
   nav.poll();
-  delay(1);
 }

@@ -9,33 +9,52 @@ bool ArduinoInputs::Init() {
   pinMode(kWaterSwitchPin, INPUT_PULLUP);
   pinMode(kBatteryPin, INPUT);
 
-  if (inside.getNumberOfDevices() < 1) {
+  insideBus.reset_search();
+  if (!insideBus.search(insideAddress)) {
     Serial.println("inputs: no inside temp sensor found");
     return false;
   }
-  if (outside.getNumberOfDevices() < 1) {
+  outsideBus.reset_search();
+  if (!outsideBus.search(outsideAddress)) {
     Serial.println("inputs: no outside temp sensor found");
     return false;
   }
-
-  inside.selectNext();
-  outside.selectNext();
+  inside.setResolution(9);
+  outside.setResolution(9);
+  inside.setWaitForConversion(false);
+  outside.setWaitForConversion(false);
+  inside.requestTemperaturesByAddress(insideAddress);
+  outside.requestTemperaturesByAddress(outsideAddress);
 
   return true;
 }
 
 float ArduinoInputs::GetOutside() {
-  if (outside.getNumberOfDevices() < 1) {
+  if (!outside.validAddress(outsideAddress)) {
     return kNoTemp;
   }
-  return outside.getTempF();
+  if (outside.isConversionComplete()) {
+    // T * 128 = C
+    // C * 1.8 + 32 = F
+    // T / 128 * 1.8 + 32 = F
+    prev_outside_ = outside.getTemp(outsideAddress) / (128 / 1.8) + 32;
+    outside.requestTemperaturesByAddress(outsideAddress);
+  }
+  return prev_outside_;
 }
 
 float ArduinoInputs::GetInside() {
-  if (inside.getNumberOfDevices() < 1) {
+  if (!inside.validAddress(insideAddress)) {
     return kNoTemp;
   }
-  return inside.getTempF();
+  if (inside.isConversionComplete()) {
+    // T * 128 = C
+    // C * 1.8 + 32 = F
+    // T * 128 * 1.8 + 32 = F
+    prev_inside_ = inside.getTemp(insideAddress) / (128 / 1.8) + 32;
+    inside.requestTemperaturesByAddress(insideAddress);
+  }
+  return prev_inside_;
 }
 
 bool ArduinoInputs::GetWaterSwitch() { return !digitalRead(kWaterSwitchPin); }
