@@ -266,9 +266,10 @@ void loop() {
     lcd.print("   In ");
     float inside = inputs.GetInside();
     if (inside <= ArduinoInputs::kNoTemp) {
-      lcd.print("NA");
+      lcd.print("NA   ");
     } else {
       lcd.print(inputs.GetInside(), /* digits= */ 0);
+      lcd.print("   ");
     }
 
     lcd.setCursor(/*col=*/0, /*row=*/1);
@@ -277,7 +278,7 @@ void loop() {
     } else if ((runner_params.run_mode == RunMode::AUTO ||
                 runner_params.run_mode == RunMode::SWAMP) &&
                runner_params.use_water_switch && !inputs.GetWaterSwitch()) {
-      lcd.print("No Water!");
+      lcd.print("No Water!        ");
     } else {
       lcd.print("Fan ");
       uint8_t fan = outputs.GetFan();
