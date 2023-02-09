@@ -30,7 +30,7 @@ bool ArduinoInputs::Init() {
 }
 
 float ArduinoInputs::GetOutside() {
-  if (!outside.validAddress(outsideAddress)) {
+  if (!outside.isConnected(outsideAddress)) {
     return kNoTemp;
   }
   if (outside.isConversionComplete()) {
@@ -44,7 +44,7 @@ float ArduinoInputs::GetOutside() {
 }
 
 float ArduinoInputs::GetInside() {
-  if (!inside.validAddress(insideAddress)) {
+  if (!inside.isConnected(insideAddress)) {
     return kNoTemp;
   }
   if (inside.isConversionComplete()) {
