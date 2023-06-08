@@ -20,9 +20,7 @@ bool ArduinoOutputs::Init() {
   return true;
 }
 
-void ArduinoOutputs::SetFan(uint8_t value) {
-  Outputs::SetFan(value);
-}
+void ArduinoOutputs::SetFan(uint8_t value) { Outputs::SetFan(value); }
 
 void ArduinoOutputs::SetFanDirection(bool direction) {
   fan_direction_ = direction;
@@ -43,15 +41,37 @@ void ArduinoOutputs::Tick() {
     analogWrite(kPwmSignalPin, fan_actual_);
   }
 
-  if (pwm_counter_ == 0) {
-    if (fan_actual_ > 0) {
+  if (fan_type_ == FanType::MOSFET_BANGBANG) {
+    digitalWrite(kFanPin, fan_target_ > 0);
+  } else {
+    if (pwm_counter_ == 0) {
+      if (fan_actual_ > 0) {
+        switch (fan_type_) {
+          case FanType::MOSFET:
+            digitalWrite(kFanPin, HIGH);
+            break;
+
+          case FanType::BRIDGE:
+            digitalWrite(kBridgeEnablePin, HIGH);
+            break;
+
+          case FanType::PWM:
+            // Already handled in SetFan
+            break;
+        };
+      }
+      if (pump_ > 0) {
+        digitalWrite(kPumpPin, HIGH);
+      }
+    }
+    if (fan_actual_ != 255 && pwm_counter_ == fan_actual_ + 1) {
       switch (fan_type_) {
         case FanType::MOSFET:
-          digitalWrite(kFanPin, HIGH);
+          digitalWrite(kFanPin, LOW);
           break;
 
         case FanType::BRIDGE:
-          digitalWrite(kBridgeEnablePin, HIGH);
+          digitalWrite(kBridgeEnablePin, LOW);
           break;
 
         case FanType::PWM:
@@ -59,24 +79,6 @@ void ArduinoOutputs::Tick() {
           break;
       };
     }
-    if (pump_ > 0) {
-      digitalWrite(kPumpPin, HIGH);
-    }
-  }
-  if (fan_actual_ != 255 && pwm_counter_ == fan_actual_ + 1) {
-    switch (fan_type_) {
-      case FanType::MOSFET:
-        digitalWrite(kFanPin, LOW);
-        break;
-
-      case FanType::BRIDGE:
-        digitalWrite(kBridgeEnablePin, LOW);
-        break;
-
-      case FanType::PWM:
-        // Already handled in SetFan
-        break;
-    };
   }
 
   if (pump_ != 255 && pwm_counter_ == pump_ + 1) {

@@ -4,6 +4,7 @@
 
 enum class FanType {
   MOSFET,
+  MOSFET_BANGBANG,
   BRIDGE,
   PWM,
 };

@@ -41,7 +41,7 @@ uint32_t backlight_off_at = 0;
 
 const constexpr int kMaxDepth = 4;
 
-constexpr FanType kFanType = FanType::MOSFET;
+constexpr FanType kFanType = FanType::MOSFET_BANGBANG;
 ArduinoInputs inputs;
 ArduinoOutputs outputs(kFanType);
 
